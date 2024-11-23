@@ -43,12 +43,12 @@ function Investigation() {
     <>
       <Flex
         direction={{ base: 'column', sm: 'row' }}
-        gap={{ base: 'sm'}}
+        gap={{ base: 'sm' }}
         justify={{ sm: 'center' }}
-        style={{ color: "#FFFFFF", paddingLeft: 30}}
+        style={{ color: "#FFFFFF", paddingLeft: 30 }}
         align={'center'}
       >
-        <IconChevronLeft stroke={3}/>
+        <IconChevronLeft stroke={3} />
         <Title order={2}>Investigation 23</Title>
 
       </Flex>
@@ -61,8 +61,7 @@ function Investigation() {
 
 function DesktopNavMain() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-10 hidden flex-col bg-background sm:flex"
-      style={{ background: "#000028", }}>
+    <aside className="fixed inset-y-0 left-0 z-10 hidden flex-col sm:flex">
       <Space h={25} />
       <Image
         h={70}
@@ -70,24 +69,24 @@ function DesktopNavMain() {
         style={{ padding: 20 }}
       />
 
-      <nav className="flex flex-col items-center gap-4 sm:py-5 text-white font-bold">
+      <nav className="flex flex-col items-center gap-4 sm:py-5 text-white font-bold pl-3 pr-8">
         <NavLink
           href="/report"
-          label="Report  "
-          leftSection={<IconLayoutDashboard size="1rem" stroke={1.5} color="white" />}
-          style={{ width: 200, paddingLeft: 20 }}
+          label="Report"
+          leftSection={<IconLayoutDashboard size="1rem" stroke={1.5} className="hover:text-black duration-150" />}
+          className="w-48 pl-5 text-white hover:text-black rounded-sm duration-150"
         />
         <NavLink
           href="/management"
           label="Management"
-          leftSection={<IconListCheck size="1rem" stroke={1.5} />}
-          style={{ width: 200, paddingLeft: 20 }}
+          leftSection={<IconListCheck size="1rem" stroke={1.5} className="hover:text-black duration-150" />}
+          className="w-48 pl-5 text-white hover:text-black rounded-sm duration-150"
         />
         <NavLink
           href="/investigation"
           label="Investigation"
-          leftSection={<IconArrowGuideFilled size="1rem" stroke={1.5} />}
-          style={{ width: 200, paddingLeft: 20 }}
+          leftSection={<IconArrowGuideFilled size="1rem" stroke={1.5} className="hover:text-black duration-150" />}
+          className="w-48 pl-5 text-white hover:text-black rounded-sm duration-150"
         />
       </nav>
     </aside>

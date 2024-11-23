@@ -48,7 +48,7 @@ const exampleResults = {
 }
 
 // input: 
-export async function runRiskAnalysis(cves: typeof EXAMPLE_CVE[], systems: typeof selectedSystems[]) {
+export async function runRiskAnalysis(cves: typeof EXAMPLE_CVE[], systems: typeof selectedSystems) {
   const affectedSystems = [];
   let newSystems = [];
   for (let i = 0; i < cves.length; i++) {
@@ -80,18 +80,18 @@ export async function selectAffectedSystems(cve: typeof EXAMPLE_CVE) {
   const idSet = new Set<number>();
   for (let i = 0; i < cve.affected_cpe.length; i++) {
     const cpe = cve.affected_cpe[i];
-    
+
     let res = await read(`
       Match (sy:System)-[related_software]->(s:SoftwareInstallation) 
       WHERE toLower(s.publisher) CONTAINS $vendor AND toLower(s.product) CONTAINS $product AND s.numeric_Version >= $min_version AND s.numeric_Version <= $max_version 
       RETURN distinct sy.id as id, sy.sub_type as name;
       `,
-    {
-      vendor: cpe.vendor,
-      product: cpe.product,
-      min_version: versionToNumericVersion(cpe.min_version),
-      max_version: versionToNumericVersion(cpe.max_version),
-    });
+      {
+        vendor: cpe.vendor,
+        product: cpe.product,
+        min_version: versionToNumericVersion(cpe.min_version),
+        max_version: versionToNumericVersion(cpe.max_version),
+      });
     res = res.filter(sys => {
       if (idSet.has(sys.id)) {return false;}
       else {

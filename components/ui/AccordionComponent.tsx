@@ -16,6 +16,7 @@ interface AccordionComponentProps {
   vulnerabilities: Vulnerability[];
 }
 
+
 export default function AccordionComponent({
                                              vulnerabilities,
                                            }: AccordionComponentProps) {

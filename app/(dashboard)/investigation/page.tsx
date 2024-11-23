@@ -18,6 +18,14 @@ const steps = [
   {
     name: "Upload CVE",
     value: 10,
+  },
+  {
+    name: "Select Systems",
+    value: 40,
+  },
+  {
+    name: "Run Analysis",
+    value: 80,
   }
 ]
 
@@ -61,6 +69,17 @@ export default function InvestigationPage() {
     const timer = setTimeout(() => setCurrentStep(steps[0]), 500)
     return () => clearTimeout(timer)
   }, [])
+
+  useEffect(() => {
+    if (cves.length > 1 || (cves.length > 0 && cves[0].id !== EXAMPLE_CVE_2.id)) {
+      setCurrentStep(steps[1])
+    } else {
+      setCurrentStep(steps[0])
+    }
+    if (selectedSystems.length > 0) {
+      setCurrentStep(steps[2])
+    }
+  }, [cves, selectedSystems])
 
   const filteredSystems = listOfSystems
     .filter(sys => {

@@ -121,7 +121,7 @@ export default function InvestigationPage() {
   }
 
   return (
-    <div className="p-8">
+    <>
       <div className="text-2xl font-semibold mb-2">{currentStep.name}</div>
       <Progress value={currentStep.value} className="my-8 w-[90%] [&>div]:bg-blue-400 shadow-sm" />
 
@@ -230,7 +230,7 @@ export default function InvestigationPage() {
           </div>
         )}
       </div>
-    </div>
+    </>
   )
 }
 

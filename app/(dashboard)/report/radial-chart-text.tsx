@@ -16,7 +16,6 @@ interface RadialChartTextProps {
   title: string
   value: number
   maxValue: number
-  gradientColors: [string, string] // e.g., ["green", "red"]
 }
 
 const chartConfig = {
@@ -33,12 +32,9 @@ export function RadialChartText({
   title,
   value,
   maxValue,
-  gradientColors,
 }: RadialChartTextProps) {
   const percentage = (value / maxValue) * 100
-  const chartData = [{ name: title, value: percentage, fill: "url(#colorGradient)" }]
-
-  const gradientId = `gradient-${title.replace(/\s+/g, "-").toLowerCase()}`
+  const chartData = [{ name: title, value: percentage, fill: percentage >= 30 ? percentage < 60 ? "orange" : "red" : "green" }]
 
   return (
     <Card className="flex flex-col">
@@ -52,40 +48,50 @@ export function RadialChartText({
           className="mx-auto aspect-square max-h-[250px]"
         >
           <RadialBarChart
-            width={200}
-            height={200}
             data={chartData}
-            innerRadius="70%"
-            outerRadius="100%"
-            startAngle={90}
-            endAngle={-270}
+            startAngle={0}
+            endAngle={percentage * 3.6}
+            innerRadius={80}
+            outerRadius={110}
           >
-            <defs>
-              <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor={gradientColors[0]} />
-                <stop offset="100%" stopColor={gradientColors[1]} />
-              </linearGradient>
-            </defs>
-            <RadialBar background dataKey="value" fill={`url(#${gradientId})`} />
-
-            <PolarGrid />
+            <PolarGrid
+              gridType="circle"
+              radialLines={false}
+              stroke="none"
+              className="first:fill-muted last:fill-background"
+              polarRadius={[86, 74]}
+            />
+            <RadialBar dataKey="value" background cornerRadius={10} />
             <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
-              {/* <Label
+              <Label
                 content={({ viewBox }) => {
-                  const { cx, cy } = viewBox
-                  return (
-                    <text
-                      x={cx}
-                      y={cy}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      className="fill-foreground text-4xl font-bold"
-                    >
-                      {value}
-                    </text>
-                  )
+                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                    return (
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          className="fill-foreground text-4xl font-bold"
+                        >
+                          {value}
+                        </tspan>
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 24}
+                          className="fill-muted-foreground"
+                        >
+                          {title}
+                        </tspan>
+                      </text>
+                    )
+                  }
                 }}
-              /> */}
+              />
             </PolarRadiusAxis>
           </RadialBarChart>
         </ChartContainer>

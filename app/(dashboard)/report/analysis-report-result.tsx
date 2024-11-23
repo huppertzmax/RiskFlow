@@ -38,14 +38,22 @@ export const report = {
     ],
     "overall_score":
     {
-        "probability": 5.5,
-        "impact": 3.3,
+        "probability": 8.5,
+        "impact": 2.3,
         "danger": "medium",
     },
     "cve_count": [
         {
             "name": "CVE-1900-8033",
-            "count": 3
+            "count": 6
+        },
+        {
+            "name": "CVE-1900-8034",
+            "count": 2
+        },
+        {
+            "name": "CVE-1900-8035",
+            "count": 9
         }
     ]
 }

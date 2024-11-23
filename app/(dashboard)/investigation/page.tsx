@@ -13,6 +13,7 @@ import { EXAMPLE_CVE, EXAMPLE_CVE_2 } from "./example-cve"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { parseCVEWithAI } from "../actions/parseCVEWithAI"
+import { runAnalysisInBackground } from "../actions/run-analysis-in-background"
 
 const steps = [
   {
@@ -59,7 +60,7 @@ const parseCVEData = async (text: string): Promise<typeof EXAMPLE_CVE> => {
 
 export default function InvestigationPage() {
   const [currentStep, setCurrentStep] = useState({ name: "", value: 0 })
-  const [selectedSystems, setSelectedSystems] = useState<string[]>([])
+  const [selectedSystems, setSelectedSystems] = useState<number[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [cves, setCves] = useState<typeof EXAMPLE_CVE[]>([EXAMPLE_CVE_2])
   const [jsonInput, setJsonInput] = useState("")
@@ -89,11 +90,11 @@ export default function InvestigationPage() {
     .slice(0, 200)
 
   const handleAnalyze = () => {
-    if (selectedSystems.length === 0 || cves.length === 0) {
-      alert("Please select at least one system and one CVE")
-      return
-    }
     console.log("Analyzing:", { selectedSystems, cves })
+    const selectedSystemObjects = listOfSystems.filter(sys => 
+      selectedSystems.includes(sys.id)
+    );
+    runAnalysisInBackground(cves, selectedSystemObjects)
   }
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -202,12 +203,12 @@ export default function InvestigationPage() {
             {filteredSystems.map((system) => (
               <div key={system.id} className="flex items-center space-x-2 p-2">
                 <Checkbox
-                  checked={selectedSystems.includes(system.id.toString())}
+                  checked={selectedSystems.includes(system.id)}
                   onCheckedChange={(checked: boolean) => {
                     setSelectedSystems(
                       checked
-                        ? [...selectedSystems, system.id.toString()]
-                        : selectedSystems.filter(id => id !== system.id.toString())
+                        ? [...selectedSystems, system.id]
+                        : selectedSystems.filter(id => id !== system.id)
                     )
                   }}
                 />

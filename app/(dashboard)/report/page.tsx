@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { FloatingIndicator, Tabs, Container, SimpleGrid, Button, Center, Space } from '@mantine/core';
+import { FloatingIndicator, Tabs, Container, SimpleGrid, Button, Center, Space, Grid } from '@mantine/core';
 import classes from "./report.module.scss";
 import AccordionComponent from '@/components/ui/AccordionComponent';
 import '@mantine/tiptap/styles.css';
@@ -267,34 +267,42 @@ function TabsElement() {
           <Tabs.Tab value="2" ref={setControlRef("2")} className={classes.tab}>
             Management Report
           </Tabs.Tab>
+          <Tabs.Tab value="3" ref={setControlRef("3")} className={classes.tab}>
+            Report History
+          </Tabs.Tab>
           <FloatingIndicator
             target={value ? controlsRefs[value] : null}
             parent={rootRef}
             className={classes.indicator}
           />
         </Tabs.List>
-
+        <Space h={30} />
         <Tabs.Panel
           value="1"
           className={classes.scrollableTab} // Add scrollable styles to this panel
         >
           <AccordionComponent />
         </Tabs.Panel>
-        <Space h={50} />
+
         <Tabs.Panel value='2'>
-          <SimpleGrid cols={2} spacing='100'>
-            <div>
+          <Grid justify="space-between">
+            <Grid.Col span={7} className="m-5">
               <TableComponent />
-            </div>
-            <div>
+            </Grid.Col>
+            <Grid.Col span={4} className="m-5">
+              <Space h={50}/>
               <InputForm />
-            </div>
-          </SimpleGrid>
+            </Grid.Col>
+          </Grid>
+
           <Center>
             <Space h={150} />
             < TextEditorModal/>
           </Center>
 
+        </Tabs.Panel>
+        <Tabs.Panel value='3'>
+          test
         </Tabs.Panel>
       </Tabs>
     </Container>
@@ -312,6 +320,7 @@ import { Table, Checkbox } from '@mantine/core';
 import InputForm from '@/components/ui/inputForm';
 import TextEditor from '@/components/ui/textEditior';
 import TextEditorModal from '@/components/ui/textEditorModal';
+import TextEditorInfoTable from '@/components/ui/textEditorInfoTable';
 
 
 

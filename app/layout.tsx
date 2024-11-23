@@ -2,9 +2,9 @@ import './globals.css';
 import '@mantine/core/styles.css';
 
 export const metadata = {
-  title: 'Next.js App Router + NextAuth + Tailwind CSS',
+  title: 'Siemens RiskFlow - Protecting Your Systems',
   description:
-    'A user admin dashboard configured with Next.js, Postgres, NextAuth, Tailwind CSS, TypeScript, and Prettier.'
+    'Siemens RiskFlow is a highly advanced risk analysis tool that helps you identify and mitigate security risks in your systems.'
 };
 
 export default function RootLayout({

@@ -9,7 +9,8 @@ import {
   integer,
   timestamp,
   pgEnum,
-  serial
+  serial,
+  json
 } from 'drizzle-orm/pg-core';
 import { count, eq, ilike } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
@@ -70,3 +71,15 @@ export async function getProducts(
 export async function deleteProductById(id: number) {
   await db.delete(products).where(eq(products.id, id));
 }
+
+export const analysisStatusEnum = pgEnum('analysis_status', ['idle', 'processing', 'completed', 'error']);
+
+export const analysisReports = pgTable('analysis_reports', {
+  id: serial('id').primaryKey(),
+  status: analysisStatusEnum('status').notNull().default('idle'),
+  timeStartProcessing: timestamp('time_start_processing', { withTimezone: true }),
+  timeEndProcessing: timestamp('time_end_processing', { withTimezone: true }),
+  report: json('report')
+});
+
+export type AnalysisReport = typeof analysisReports.$inferSelect;

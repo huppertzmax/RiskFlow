@@ -9,6 +9,8 @@ import {
 } from '@tabler/icons-react';
 import React from 'react';
 import { white } from 'next/dist/lib/picocolors';
+import { Tooltip, TooltipProvider, TooltipTrigger } from '@radix-ui/react-tooltip';
+import { TooltipContent } from '@/components/ui/tooltip';
 
 export default function DashboardLayout({
   children
@@ -58,35 +60,50 @@ function Investigation() {
   )
 }
 
+const StatusIcon = () => {
+  return (<TooltipProvider delayDuration={0}>
+    <Tooltip>
+      <TooltipTrigger>
+        <div className="w-4 h-4 rounded-full bg-orange-500 animate-pulse" />
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Risk Analysis is running.</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>)
+}
+
 
 function DesktopNavMain() {
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden flex-col sm:flex">
       <Space h={25} />
       <Image
-        h={70}
-        src="/Images/Siemens-Logo.png"
+        h={90}
+        w={200}
+        src="/Images/RiskFlow-Logo.png"
         style={{ padding: 20 }}
       />
 
-      <nav className="flex flex-col items-center gap-4 sm:py-5 text-white font-bold pl-3 pr-8">
+      <nav className="flex flex-col items-stretch gap-4 sm:py-5 text-white font-bold w-[200px]">
         <NavLink
           href="/report"
           label="Report"
           leftSection={<IconLayoutDashboard size="1rem" stroke={1.5} className="hover:text-black duration-150" />}
-          className="w-48 pl-5 text-white hover:text-black rounded-sm duration-150"
+          rightSection={<StatusIcon />}
+          className="w-full px-5 text-white hover:text-black rounded-sm duration-150"
         />
         <NavLink
           href="/management"
           label="Management"
           leftSection={<IconListCheck size="1rem" stroke={1.5} className="hover:text-black duration-150" />}
-          className="w-48 pl-5 text-white hover:text-black rounded-sm duration-150"
+          className="w-full px-5 text-white hover:text-black rounded-sm duration-150"
         />
         <NavLink
           href="/investigation"
           label="Investigation"
           leftSection={<IconArrowGuideFilled size="1rem" stroke={1.5} className="hover:text-black duration-150" />}
-          className="w-48 pl-5 text-white hover:text-black rounded-sm duration-150"
+          className="w-full px-5 text-white hover:text-black rounded-sm duration-150"
         />
       </nav>
     </aside>

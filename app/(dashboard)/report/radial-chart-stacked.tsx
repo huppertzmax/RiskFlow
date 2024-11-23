@@ -5,6 +5,7 @@ import { PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts"
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -15,13 +16,13 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
+  vulnerabilities: {
+    label: "Vulnerabilities",
+    color: "hsl(var(--chart-1))",
   },
-  safari: {
-    label: "Safari",
+  uniqueCVE: {
+    label: "Unique CVEs",
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig
@@ -42,21 +43,25 @@ export function RadialChartStacked({
   data,
   total,
 }: RadialChartStackedProps) {
-  const chartData = data.map((cve) => ({
-    name: cve.name,
-    value: (cve.count / total) * 100,
-    fill: `hsl(${Math.random() * 360}, 70%, 50%)`, // Random color for each CVE
-  }))
+  const cveSum = data.reduce((acc, cve) => acc + cve.count, 0)
+  const chartData = [{
+    ...data.reduce((acc, cve, index) => ({
+      ...acc,
+      [cve.name]: (cve.count / total) * 100,
+      [`${cve.name}Count`]: cve.count
+    }), {})
+  }]
 
   return (
     <Card className="flex flex-col">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
+        <CardDescription>Distribution of {cveSum} vulnerabilities originating from {data.length} unique CVEs</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
+          className="mx-auto aspect-square max-h-[250px] mb-[-60px] mt-[60px]"
         >
           <RadialBarChart
             width={200}
@@ -64,10 +69,43 @@ export function RadialChartStacked({
             data={chartData}
             innerRadius="70%"
             outerRadius="100%"
-            startAngle={90}
-            endAngle={-270}
+            startAngle={180}
+            endAngle={0}
           >
-            <RadialBar background dataKey="value" />
+            <ChartTooltip
+              cursor={false}
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  const dataKey = payload[0].dataKey as string
+                  const count = payload[0].payload[`${dataKey}Count`]
+                  const percentage = payload[0].value
+                  return (
+                    <div className="rounded-lg border bg-background p-2 shadow-sm">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex flex-col">
+                          <span className="text-[0.70rem] uppercase text-muted-foreground">
+                            {dataKey}
+                          </span>
+                          <span className="font-bold">
+                            {count} ({typeof percentage === 'number' ? percentage.toFixed(1) : percentage}%)
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                }
+                return null
+              }}
+            />
+            {data.map((cve, index) => (
+              <RadialBar
+                key={cve.name}
+                dataKey={cve.name}
+                stackId="stack1"
+                fill={`hsl(${Math.random() * 360}, ${70 + (Math.random() * 30)}%, ${50 + (Math.random() * 30)}%)`}
+                className="stroke-transparent stroke-2"
+              />
+            ))}
             <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
               <text
                 x="50%"

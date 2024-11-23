@@ -1,0 +1,16 @@
+{
+    "configurations": [ 
+        {
+          "name": "Next.js: debug full stack",
+          "type": "node-terminal",
+          "request": "launch",
+          "command": "pnpm dev",
+          "autoAttachChildProcesses": true,
+          "serverReadyAction": {
+            "pattern": "- Local:.+(https?://.+)",
+            "uriFormat": "%s",
+            "action": "debugWithChrome"
+          }
+        }
+    ]
+}

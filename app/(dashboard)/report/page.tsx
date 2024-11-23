@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { FloatingIndicator, Tabs, Container, SimpleGrid, Button, Center, Space, Grid } from '@mantine/core';
 import classes from "./report.module.scss";
 import AccordionComponent from '@/components/ui/AccordionComponent';
@@ -256,6 +256,20 @@ function TabsElement() {
     controlsRefs[val] = node;
     setControlsRefs(controlsRefs);
   };
+  const [vulnerabilitiesList, setVulnerabilitiesList] = useState<any[]>([]);
+
+  useEffect(() => {
+    // first check local storage for vulnerabilitiesList
+    const storedVulnerabilitiesList = localStorage.getItem("vulnerabilitiesList");
+    if (storedVulnerabilitiesList) {
+      setVulnerabilitiesList(JSON.parse(storedVulnerabilitiesList));
+    } else {
+      Promise.all(vulnerabilitiesList.map(vulnerability => parseCVEWithAI(vulnerability.content.human_readable))).then(parsedVulnerabilities => {
+        setVulnerabilitiesList(parsedVulnerabilities);
+        localStorage.setItem("vulnerabilitiesList", JSON.stringify(parsedVulnerabilities));
+      });
+    }
+  }, []);
 
   return (
     <Container fluid>
@@ -321,6 +335,7 @@ import InputForm from '@/components/ui/inputForm';
 import TextEditor from '@/components/ui/textEditior';
 import TextEditorModal from '@/components/ui/textEditorModal';
 import TextEditorInfoTable from '@/components/ui/textEditorInfoTable';
+import { parseCVEWithAI } from "../actions/parseCVEWithAI";
 
 
 

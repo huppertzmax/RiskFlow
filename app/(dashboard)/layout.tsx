@@ -1,16 +1,16 @@
-import { User } from './user';
-import Providers from './providers';
-import { SearchInput } from './search';
-import { MantineProvider, NavLink, Space, Image, Title, Button, Flex } from '@mantine/core';
+import { Flex, Image, MantineProvider, NavLink, Space, Title } from '@mantine/core';
 import {
   IconArrowGuideFilled, IconChevronLeft,
   IconLayoutDashboard,
-  IconListCheck, IconSquareRoundedArrowLeft
+  IconListCheck
 } from '@tabler/icons-react';
 import React from 'react';
-import { white } from 'next/dist/lib/picocolors';
-import { Tooltip, TooltipProvider, TooltipTrigger } from '@radix-ui/react-tooltip';
-import { TooltipContent } from '@/components/ui/tooltip';
+import Providers from './providers';
+import { SearchInput } from './search';
+import { StatusIcon } from './status-icon';
+import { User } from './user';
+import { isLoadingAnalysis } from "./actions/analysis-db-actions";
+import { Toaster } from '@/components/ui/toaster';
 
 export default function DashboardLayout({
   children
@@ -33,6 +33,7 @@ export default function DashboardLayout({
             <main className="grid flex-1 items-start gap-2 m-4 md:gap-4 bg-muted/40 min-h-[88vh] pb-12 bg-white rounded-lg">
               {children}
             </main>
+            <Toaster />
           </div>
         </main>
       </MantineProvider>
@@ -60,20 +61,6 @@ function Investigation() {
   )
 }
 
-const StatusIcon = () => {
-  return (<TooltipProvider delayDuration={0}>
-    <Tooltip>
-      <TooltipTrigger>
-        <div className="w-4 h-4 rounded-full bg-orange-500 animate-pulse" />
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>Risk Analysis is running.</p>
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>)
-}
-
-
 function DesktopNavMain() {
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden flex-col sm:flex">
@@ -90,7 +77,7 @@ function DesktopNavMain() {
           href="/report"
           label="Report"
           leftSection={<IconLayoutDashboard size="1rem" stroke={1.5} className="hover:text-black duration-150" />}
-          rightSection={<StatusIcon />}
+          rightSection={<StatusIcon isLoadingAnalysis={isLoadingAnalysis} />}
           className="w-full px-5 text-white hover:text-black rounded-sm duration-150"
         />
         <NavLink

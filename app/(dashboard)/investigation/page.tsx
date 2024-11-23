@@ -14,6 +14,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Textarea } from "@/components/ui/textarea"
 import { parseCVEWithAI } from "../actions/parseCVEWithAI"
 import { runAnalysisInBackground } from "../actions/run-analysis-in-background"
+import { isLoadingAnalysis } from "../actions/analysis-db-actions"
+import { toast } from "@/components/ui/use-toast"
+
+export const maxDuration = 300;
 
 const steps = [
   {
@@ -89,12 +93,13 @@ export default function InvestigationPage() {
     })
     .slice(0, 200)
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     console.log("Analyzing:", { selectedSystems, cves })
     const selectedSystemObjects = listOfSystems.filter(sys => 
       selectedSystems.includes(sys.id)
     );
-    runAnalysisInBackground(cves, selectedSystemObjects)
+    toast({ title: "Processing Started!", description: "This might take up to a minute. Once done, the newest report will be available in the reports tab!", variant: "default", className: "bg-blue-400 text-white", duration: 6000 });
+    runAnalysisInBackground(cves, selectedSystemObjects);
   }
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {

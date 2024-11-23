@@ -63,17 +63,4 @@ export async function getAnalysisStatus() {
     };
 }
 
-export async function getLatestReport() {
-    const [latestReport] = await db
-        .select()
-        .from(analysisReports)
-        .orderBy(desc(analysisReports.timeStartProcessing))
-        .limit(1);
-    
-    if (!latestReport) return null;
-    
-    return {
-        ...latestReport,
-        report: latestReport.report
-    };
-}
+

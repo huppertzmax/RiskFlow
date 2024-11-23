@@ -102,7 +102,7 @@ function TabsElement() {
           </Grid>
 
           <Center mt="xl">
-            <TextEditorModal />
+            <TextEditorModal vulnerabilities={vulnerabilitiesList}/>
           </Center>
         </Tabs.Panel>
 

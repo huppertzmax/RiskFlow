@@ -3,7 +3,7 @@ import Providers from './providers';
 import { SearchInput } from './search';
 import { MantineProvider, NavLink, Space, Image, Title, Button, Flex } from '@mantine/core';
 import {
-  IconArrowGuideFilled,
+  IconArrowGuideFilled, IconChevronLeft,
   IconLayoutDashboard,
   IconListCheck, IconSquareRoundedArrowLeft
 } from '@tabler/icons-react';
@@ -28,7 +28,7 @@ export default function DashboardLayout({
               <SearchInput />
               <User />
             </header>
-            <main className="grid flex-1 items-start gap-2 p-4 sm:px-6 sm:py-0 md:gap-4 bg-muted/40 min-h-[88vh] pb-10 bg-white rounded-lg">
+            <main className="grid flex-1 items-start gap-2 m-4 md:gap-4 bg-muted/40 min-h-[88vh] pb-12 bg-white rounded-lg">
               {children}
             </main>
           </div>
@@ -43,12 +43,13 @@ function Investigation() {
     <>
       <Flex
         direction={{ base: 'column', sm: 'row' }}
-        gap={{ base: 'sm', sm: 'lg' }}
+        gap={{ base: 'sm' }}
         justify={{ sm: 'center' }}
-        style={{ color: "#FFFFFF" }}
+        style={{ color: "#FFFFFF", paddingLeft: 30 }}
+        align={'center'}
       >
-        <IconSquareRoundedArrowLeft />
-        <Title order={2}>RiskFlow</Title>
+        <IconChevronLeft stroke={3} />
+        <Title order={2}>Investigation 23</Title>
 
       </Flex>
 
@@ -60,8 +61,7 @@ function Investigation() {
 
 function DesktopNavMain() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-10 hidden flex-col bg-background sm:flex"
-      style={{ background: "#000028", }}>
+    <aside className="fixed inset-y-0 left-0 z-10 hidden flex-col sm:flex">
       <Space h={25} />
       <Image
         h={70}
@@ -69,23 +69,24 @@ function DesktopNavMain() {
         style={{ padding: 20 }}
       />
 
-      <nav className="flex flex-col items-center gap-4 sm:py-5 text-white font-bold">
+      <nav className="flex flex-col items-center gap-4 sm:py-5 text-white font-bold pl-3 pr-8">
         <NavLink
           href="/report"
-          label="Report  "
-          leftSection={<IconLayoutDashboard size="1rem" stroke={1.5} color="white" />}
-          style={{ width: 200, paddingLeft: 20 }} />
+          label="Report"
+          leftSection={<IconLayoutDashboard size="1rem" stroke={1.5} className="hover:text-black duration-150" />}
+          className="w-48 pl-5 text-white hover:text-black rounded-sm duration-150"
+        />
         <NavLink
           href="/management"
           label="Management"
-          leftSection={<IconListCheck size="1rem" stroke={1.5} />}
-          style={{ width: 200, paddingLeft: 20 }}
+          leftSection={<IconListCheck size="1rem" stroke={1.5} className="hover:text-black duration-150" />}
+          className="w-48 pl-5 text-white hover:text-black rounded-sm duration-150"
         />
         <NavLink
           href="/investigation"
           label="Investigation"
-          leftSection={<IconArrowGuideFilled size="1rem" stroke={1.5} />}
-          style={{ width: 200, paddingLeft: 20 }}
+          leftSection={<IconArrowGuideFilled size="1rem" stroke={1.5} className="hover:text-black duration-150" />}
+          className="w-48 pl-5 text-white hover:text-black rounded-sm duration-150"
         />
       </nav>
     </aside>

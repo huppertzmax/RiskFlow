@@ -1,9 +1,45 @@
-"use client";
-import React from "react";
-import { FloatingIndicator, Tabs, Container, SimpleGrid, Button, Center, Space } from '@mantine/core';
-import classes from "./report.module.scss";
-import AccordionComponent from '@/components/ui/AccordionComponent';
-import '@mantine/tiptap/styles.css';
+
+import { Accordion, Avatar, Button, Flex, Group, Space, Text } from '@mantine/core';
+import React from 'react';
+
+interface VulnerabilityItem {
+  id: string;
+  label: string;
+  content: {
+    human_readable: string;
+    system_id: string;
+    severity: string;
+    risk_scores: {
+      probability_score: number;
+      impact_score: number;
+      overall_danger: number;
+    };
+    reasons: {
+      probability: { cve: string; epss: number; description: string }[];
+      impact: string[];
+    };
+    responsible_personnel: {
+      technical_contacts: string[];
+      manager: string;
+    };
+    cve_summary: {
+      cve_id: string;
+      occurrences: number;
+      notes: string;
+    };
+    recommended_actions: {
+      isolate_network: string;
+      patchable: boolean;
+      patch_timeline: string;
+    };
+  };
+}
+
+interface AccordionLabelProps {
+  label: string;
+  image: string;
+  description: string;
+}
 
 const vulnerabilitiesList = [
   {
@@ -237,132 +273,123 @@ const vulnerabilitiesList = [
     }
   }
   // Add 3 more similar objects based on this structure as needed
-];
-export default function ReportPage() {
-  return (
-    <div>
-      <TabsElement />
-    </div>
-  );
-}
+];// Replace with actual data
 
-function TabsElement() {
-  const [rootRef, setRootRef] = useState<HTMLDivElement | null>(null);
-  const [value, setValue] = useState<string | null>("1");
-  const [controlsRefs, setControlsRefs] = useState<
-    Record<string, HTMLButtonElement | null>
-  >({});
-  const setControlRef = (val: string) => (node: HTMLButtonElement) => {
-    controlsRefs[val] = node;
-    setControlsRefs(controlsRefs);
-  };
+export default function AccordionComponent() {
+  const renderList = (items: string[] | any[], renderItem: (item: any, index: number) => React.ReactNode) =>
+    items.map((item, index) => <li key={index}>{renderItem(item, index)}</li>);
 
-  return (
-    <Container fluid>
-      <Tabs variant="none" value={value} onChange={setValue} className="m-5">
-        <Tabs.List ref={setRootRef} className={classes.list}>
-          <Tabs.Tab value="1" ref={setControlRef("1")} className={classes.tab}>
-            Technical Report
-          </Tabs.Tab>
-          <Tabs.Tab value="2" ref={setControlRef("2")} className={classes.tab}>
-            Management Report
-          </Tabs.Tab>
-          <FloatingIndicator
-            target={value ? controlsRefs[value] : null}
-            parent={rootRef}
-            className={classes.indicator}
-          />
-        </Tabs.List>
+  const renderAccordionItems = vulnerabilitiesList.map((item) => (
+    <Accordion.Item value={item.id} key={item.id}>
+      <Accordion.Control>
+        <AccordionLabel label={item.label} image={item.image} description={item.content.human_readable} />
+      </Accordion.Control>
+      <Accordion.Panel>
+        <Text size="sm" mb="xs">
+          <strong>Summary:</strong> {item.content.human_readable}
+        </Text>
+        <Text size="sm" mb="xs">
+          <strong>System ID:</strong> {item.content.system_id}
+        </Text>
+        <Text size="sm" mb="xs">
+          <strong>Severity:</strong> {item.content.severity}
+        </Text>
 
-        <Tabs.Panel
-          value="1"
-          className={classes.scrollableTab} // Add scrollable styles to this panel
-        >
-          <AccordionComponent />
-        </Tabs.Panel>
-        <Space h={50} />
-        <Tabs.Panel value='2'>
-          <SimpleGrid cols={2} spacing='100'>
-            <div>
-              <TableComponent />
-            </div>
-            <div>
-              <InputForm />
-            </div>
-          </SimpleGrid>
-          <Center>
-            <Space h={150} />
-            < TextEditorModal/>
-          </Center>
+        <Text size="sm" mb="xs">
+          <strong>Risk Scores:</strong>
+        </Text>
+        <ul style={{ marginLeft: '20px', marginBottom: '10px' }}>
+          {renderList(
+            [
+              `Probability Score: ${item.content.risk_scores.probability_score}`,
+              `Impact Score: ${item.content.risk_scores.impact_score}`,
+              `Overall Danger: ${item.content.risk_scores.overall_danger}`,
+            ],
+            (score) => score
+          )}
+        </ul>
 
-        </Tabs.Panel>
-      </Tabs>
-    </Container>
-  );
-}
+        <Text size="sm" mb="xs">
+          <strong>Reasons for Probability:</strong>
+        </Text>
+        <ul style={{ marginLeft: '20px', marginBottom: '10px' }}>
+          {renderList(item.content.reasons.probability, (reason) => (
+            <>
+              CVE: {reason.cve}, EPSS: {reason.epss}, Description: {reason.description}
+            </>
+          ))}
+        </ul>
 
+        <Text size="sm" mb="xs">
+          <strong>Impact Reasons:</strong>
+        </Text>
+        <ul style={{ marginLeft: '20px', marginBottom: '10px' }}>
+          {renderList(item.content.reasons.impact, (impactReason) => impactReason)}
+        </ul>
 
+        <Text size="sm" mb="xs">
+          <strong>Responsible Personnel:</strong>
+        </Text>
+        <ul style={{ marginLeft: '20px', marginBottom: '10px' }}>
+          {renderList(
+            [
+              `Technical Contacts: ${item.content.responsible_personnel.technical_contacts.join(', ')}`,
+              `Manager: ${item.content.responsible_personnel.manager}`,
+            ],
+            (personnel) => personnel
+          )}
+        </ul>
 
+        <Text size="sm" mb="xs">
+          <strong>CVE Summary:</strong>
+        </Text>
+        <ul style={{ marginLeft: '20px', marginBottom: '10px' }}>
+          {renderList(
+            [
+              `CVE ID: ${item.content.cve_summary.cve_id}`,
+              `Occurrences: ${item.content.cve_summary.occurrences}`,
+              `Notes: ${item.content.cve_summary.notes}`,
+            ],
+            (summary) => summary
+          )}
+        </ul>
 
+        <Text size="sm" mb="xs">
+          <strong>Recommended Actions:</strong>
+        </Text>
+        <ul style={{ marginLeft: '20px', marginBottom: '10px' }}>
+          {renderList(
+            [
+              `Isolate Network: ${item.content.recommended_actions.isolate_network}`,
+              `Patchable: ${item.content.recommended_actions.patchable ? 'Yes' : 'No'}`,
+              `Patch Timeline: ${item.content.recommended_actions.patch_timeline}`,
+            ],
+            (action) => action
+          )}
+        </ul>
+        <Space h={20}/>
+<Flex gap={20}>
+  <Button color="#000028">Create Tasks</Button>
+  <Button color="#000028">Select for Management report</Button>
+</Flex>
 
-
-
-import { useState } from 'react';
-import { Table, Checkbox } from '@mantine/core';
-import InputForm from '@/components/ui/inputForm';
-import TextEditor from '@/components/ui/textEditior';
-import TextEditorModal from '@/components/ui/textEditorModal';
-
-
-
-function TableComponent() {
-  const [selectedRows, setSelectedRows] = useState<string[]>([]); // Track selected rows by their IDs
-
-  const rows = vulnerabilitiesList.map((vulnerability) => (
-    <Table.Tr
-      key={vulnerability.id}
-      bg={selectedRows.includes(vulnerability.id) ? 'var(--mantine-color-blue-light)' : undefined}
-    >
-      <Table.Td>
-        <Checkbox
-          aria-label="Select row"
-          checked={selectedRows.includes(vulnerability.id)}
-          onChange={(event) =>
-            setSelectedRows(
-              event.currentTarget.checked
-                ? [...selectedRows, vulnerability.id]
-                : selectedRows.filter((id) => id !== vulnerability.id)
-            )
-          }
-          styles={{
-            input: {
-              backgroundColor: selectedRows.includes(vulnerability.id) ? '#000028' : 'transparent',
-              borderColor: '#000028',
-            },
-          }}
-        />
-      </Table.Td>
-      <Table.Td>{vulnerability.label}</Table.Td>
-      <Table.Td>{vulnerability.content.system_id}</Table.Td>
-      <Table.Td>{vulnerability.content.severity}</Table.Td>
-      <Table.Td>
-        {`${vulnerability.content.risk_scores.probability_score} / ${vulnerability.content.risk_scores.impact_score}`}
-      </Table.Td>
-    </Table.Tr>
+      </Accordion.Panel>
+    </Accordion.Item>
   ));
 
+  return <Accordion chevronPosition="right" variant="contained">{renderAccordionItems}</Accordion>;
+}
+
+function AccordionLabel({ label, image, description }: AccordionLabelProps) {
   return (
-    <Table>
-      <Table.Thead>
-        <Table.Tr>
-          <Table.Th />
-          <Table.Th>Label</Table.Th>
-          <Table.Th>System ID</Table.Th>
-          <Table.Th>Severity</Table.Th>
-          <Table.Th>Risk Score (Probability / Impact)</Table.Th>
-        </Table.Tr>
-      </Table.Thead>
-      <Table.Tbody>{rows}</Table.Tbody>
-    </Table>
+    <Group wrap="nowrap">
+      <Avatar src={image} radius="xl" size="lg" />
+      <div>
+        <Text>{label}</Text>
+        <Text size="sm" color="dimmed" weight={400}>
+          {description}
+        </Text>
+      </div>
+    </Group>
   );
 }

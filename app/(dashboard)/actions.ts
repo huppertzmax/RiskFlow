@@ -48,31 +48,33 @@ const exampleResults = {
 }
 
 // input: 
-export async function runRiskAnalysis(cves: typeof EXAMPLE_CVE[], systems: typeof selectedSystems) {
-  const affectedSystems = [];
-  for (let i = 0; i < cves.length; i++) {
-    const systemList = await selectAffectedSystems(cves[i]);
-    for (let j = 0; j < systemList.length; j++) {
-      let exists = false;
-      let k = 0;
-      for (; k < affectedSystems.length; k++) {
-        if (affectedSystems[k].id == systemList[j].id) {
-          exists = true;
-          break;
-        }
-      }
-      if (exists && !affectedSystems[k].cve.includes(cves[i].id)) {
-        affectedSystems[k].cve.push(cves[i].id);
-      }
-      else {
-        affectedSystems.push(systemList[j]);
-      }
-    }
-  }
+export async function runRiskAnalysis(cves: typeof EXAMPLE_CVE[], infectedSystems: typeof selectedSystems) {
+  let affectedSystems = new Map<number, object>();
+
+  await findAffectedSystems(cves, affectedSystems);
+  affectedSystems.clear();
+  affectedSystems.set(253566941, {id: 253566941, name: "test2", cves: ['cve1','cve2']})
+  await findInternetAccessibleSystems(affectedSystems, infectedSystems);
+  
   return affectedSystems;
 }
 
-export async function selectAffectedSystems(cve: typeof EXAMPLE_CVE) {
+async function findAffectedSystems(cves: any [], affectedSystems: Map<number, object>) {
+  for (let i = 0; i < cves.length; i++) {
+    const systemList = await findAffectedSystemsByCVE(cves[i]);
+    
+    systemList.forEach(sys => {
+      if (affectedSystems.has(sys.id) && !affectedSystems.get(sys.id).cves.includes(cves[i].id)) {
+        affectedSystems.get(sys.id).cves.push(cves[i].id);
+      }
+      else {
+        affectedSystems.set(sys.id, sys);
+      }
+    })
+  }
+}
+
+async function findAffectedSystemsByCVE(cve) {
   const selectedSystems = [];
   const idSet = new Set<number>();
   for (let i = 0; i < cve.affected_cpe.length; i++) {
@@ -96,8 +98,34 @@ export async function selectAffectedSystems(cve: typeof EXAMPLE_CVE) {
         return true;
       }
     })
-    res = res.map(sys => {return {id: sys.id.low, name: sys.name, cve: [cve.id]}});
+    res = res.map(sys => {return {id: sys.id.low, name: sys.name, cves: [cve.id]}});
     selectedSystems.push(...res);
   }
   return selectedSystems;
+}
+
+export async function findInternetAccessibleSystems(affectedSystems: Map<number, object>, infectedSystems: typeof selectedSystems) {
+  const inf = infectedSystems.map(sys => {return sys.id});
+  const af = Array.from(affectedSystems.keys());
+  
+  let res = await read(`
+    MATCH (s:System WHERE s.id IN $affected_systems)
+    WHERE 
+    NOT (s)-[:related_hostname]->() 
+    OR
+    EXISTS {
+      MATCH (s)-[:related_ipaddress]->(:IPAddress)-[:in_segment]->(:VirtualNetworkSegment)<-[:in_segment]-(:IPAddress)<-[:related_ipaddress]-(s2:System WHERE s2.id IN $infected_systems)
+    }
+    RETURN s.id as id;
+    `,
+  {
+    infected_systems: infectedSystems.map(sys => {return sys.id}),
+    affected_systems: Array.from(affectedSystems.keys()),
+  });
+  console.log(res);
+  res.forEach(sys => {
+    if (affectedSystems.has(sys.id.low)) {
+      affectedSystems.get(sys.id.low)['accessible_from_internet'] = true;
+    }
+  })
 }

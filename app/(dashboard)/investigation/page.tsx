@@ -12,6 +12,7 @@ import { listOfSystems } from "./neo4j_query_table_data_2024-11-23"
 import { EXAMPLE_CVE, EXAMPLE_CVE_2 } from "./example-cve"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
+import { parseCVEWithAI } from "../actions/parseCVEWithAI"
 
 const steps = [
   {
@@ -19,6 +20,34 @@ const steps = [
     value: 10,
   }
 ]
+
+const isCVEFormat = (obj: any): obj is typeof EXAMPLE_CVE => {
+  return (
+    typeof obj.id === "string" &&
+    typeof obj.name === "string" &&
+    true
+  )
+}
+
+const parseCVEData = async (text: string): Promise<typeof EXAMPLE_CVE> => {
+  try {
+    const parsedData = JSON.parse(text)
+    if (isCVEFormat(parsedData)) {
+      return parsedData
+    }
+    const result = await parseCVEWithAI(text)
+    if (result) {
+      return result
+    }
+    throw new Error("Failed to parse CVE data")
+  } catch (error) {
+    const result = await parseCVEWithAI(text)
+    if (result) {
+      return result
+    }
+    throw new Error("Failed to parse CVE data")
+  }
+}
 
 export default function InvestigationPage() {
   const [currentStep, setCurrentStep] = useState({ name: "", value: 0 })
@@ -54,21 +83,21 @@ export default function InvestigationPage() {
 
     try {
       const text = await file.text()
-      const parsedCVE = JSON.parse(text)
+      const parsedCVE = await parseCVEData(text)
       setCves([...cves, parsedCVE])
     } catch (error) {
-      alert("Invalid JSON file format")
+      alert("Failed to parse CVE data")
     }
   }
 
-  const handleAddCVE = () => {
+  const handleAddCVE = async () => {
     try {
-      const parsedCVE = JSON.parse(jsonInput)
+      const parsedCVE = await parseCVEData(jsonInput)
       setCves([...cves, parsedCVE])
       setJsonInput("")
       setDialogOpen(false)
     } catch (error) {
-      alert("Invalid JSON format")
+      alert("Failed to parse CVE data")
     }
   }
 

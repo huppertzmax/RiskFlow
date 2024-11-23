@@ -48,9 +48,8 @@ const exampleResults = {
 }
 
 // input: 
-export async function runRiskAnalysis(cves: typeof EXAMPLE_CVE[], systems: typeof selectedSystems[]) {
+export async function runRiskAnalysis(cves: typeof EXAMPLE_CVE[], systems: typeof selectedSystems) {
   const affectedSystems = [];
-  let newSystems = [];
   for (let i = 0; i < cves.length; i++) {
     const systemList = await selectAffectedSystems(cves[i]);
     for (let j = 0; j < systemList.length; j++) {
@@ -66,11 +65,9 @@ export async function runRiskAnalysis(cves: typeof EXAMPLE_CVE[], systems: typeo
         affectedSystems[k].cve.push(cves[i].id);
       }
       else {
-        newSystems.push(systemList[j]);
+        affectedSystems.push(systemList[j]);
       }
     }
-    affectedSystems.push(...newSystems);
-    newSystems = [];
   }
   return affectedSystems;
 }

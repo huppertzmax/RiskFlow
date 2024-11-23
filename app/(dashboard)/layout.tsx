@@ -9,6 +9,8 @@ import {
 } from '@tabler/icons-react';
 import React from 'react';
 import { white } from 'next/dist/lib/picocolors';
+import { Tooltip, TooltipProvider, TooltipTrigger } from '@radix-ui/react-tooltip';
+import { TooltipContent } from '@/components/ui/tooltip';
 
 export default function DashboardLayout({
   children
@@ -58,6 +60,19 @@ function Investigation() {
   )
 }
 
+const StatusIcon = () => {
+  return (<TooltipProvider delayDuration={0}>
+    <Tooltip>
+      <TooltipTrigger>
+        <div className="w-4 h-4 rounded-full bg-orange-500 animate-pulse" />
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Risk Analysis is running.</p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>)
+}
+
 
 function DesktopNavMain() {
   return (
@@ -75,6 +90,7 @@ function DesktopNavMain() {
           href="/report"
           label="Report"
           leftSection={<IconLayoutDashboard size="1rem" stroke={1.5} className="hover:text-black duration-150" />}
+          rightSection={<StatusIcon />}
           className="w-full px-5 text-white hover:text-black rounded-sm duration-150"
         />
         <NavLink

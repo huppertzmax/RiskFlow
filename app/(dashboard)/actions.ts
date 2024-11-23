@@ -53,6 +53,8 @@ export async function runRiskAnalysis(cves: typeof EXAMPLE_CVE[], infectedSystem
 
   await findAffectedSystems(cves, affectedSystems);
   await findInternetAccessibleSystems(affectedSystems, infectedSystems);
+  await findNumberCriticalSystemsInNetworkSeg(affectedSystems);
+  await findSystemInfos(affectedSystems);
   
   return affectedSystems;
 }
@@ -96,34 +98,74 @@ async function findAffectedSystemsByCVE(cve) {
         return true;
       }
     })
-    res = res.map(sys => {return {id: sys.id.low, name: sys.name, cves: [cve.id]}});
+    res = res.map(sys => {return {
+      id: sys.id.low,
+      risk : {
+        accessible_from_internet: false,
+        network_segment_risk: 0,
+        network_segment_exposed: 0,
+        critical_system: false,
+        system_type: "",
+      },
+      name: sys.name,
+      cves: [cve.id],
+    }});
     selectedSystems.push(...res);
   }
   return selectedSystems;
 }
 
-export async function findInternetAccessibleSystems(affectedSystems: Map<number, object>, infectedSystems: typeof selectedSystems) {
-  const inf = infectedSystems.map(sys => {return sys.id});
-  const af = Array.from(affectedSystems.keys());
-  
+async function findInternetAccessibleSystems(affectedSystems: Map<number, object>, infectedSystems: typeof selectedSystems) {
+  if (!infectedSystems) {
+    let res = await read(`
+      MATCH (s:System WHERE s.id IN $affected_systems)
+      WHERE 
+      NOT (s)-[:related_hostname]->() 
+      OR
+      EXISTS {
+        MATCH (s)-[:related_ipaddress]->(:IPAddress)-[:in_segment]->(:VirtualNetworkSegment)<-[:in_segment]-(:IPAddress)<-[:related_ipaddress]-(s2:System WHERE s2.id IN $infected_systems)
+      }
+      RETURN s.id as id;
+      `,
+    {
+      infected_systems: infectedSystems.map(sys => {return sys.id}),
+      affected_systems: Array.from(affectedSystems.keys()),
+    });
+    res.forEach(sys => {
+      if (affectedSystems.has(sys.id.low)) {
+        affectedSystems.get(sys.id.low)['risk']['accessible_from_internet'] = true;
+      }
+    })
+  }
+}
+
+async function findNumberCriticalSystemsInNetworkSeg(affectedSystems: Map<number, object>) {
   let res = await read(`
-    MATCH (s:System WHERE s.id IN $affected_systems)
-    WHERE 
-    NOT (s)-[:related_hostname]->() 
-    OR
-    EXISTS {
-      MATCH (s)-[:related_ipaddress]->(:IPAddress)-[:in_segment]->(:VirtualNetworkSegment)<-[:in_segment]-(:IPAddress)<-[:related_ipaddress]-(s2:System WHERE s2.id IN $infected_systems)
-    }
-    RETURN s.id as id;
+    MATCH (s:System)-[:related_ipaddress]->(:IPAddress)-[:in_segment]->(:VirtualNetworkSegment)<-[:in_segment]-(:IPAddress)<-[:related_ipaddress]-(s2:System)
+    WHERE s.id IN $affected_systems AND s2.critical = 1
+    RETURN s.id AS id, COUNT(s2) AS count_critical;
     `,
   {
-    infected_systems: infectedSystems.map(sys => {return sys.id}),
     affected_systems: Array.from(affectedSystems.keys()),
   });
-  console.log(res);
   res.forEach(sys => {
-    if (affectedSystems.has(sys.id.low)) {
-      affectedSystems.get(sys.id.low)['accessible_from_internet'] = true;
+    if (affectedSystems.has(sys.id)) {
+      affectedSystems.get(sys.id)['risk']['network_segment_risk'] = sys.count_critical.low;
+    }
+  })
+}
+
+async function findSystemInfos(affectedSystems: Map<number, object>) {
+  let res = await read(`
+    MATCH (s:System where s.id IN $affected_systems) return s.id as id, s.critical as critical, s.type as type
+    `,
+  {
+    affected_systems: Array.from(affectedSystems.keys()),
+  });
+  res.forEach(sys => {
+    if (affectedSystems.has(sys.id)) {
+      affectedSystems.get(sys.id)['risk']['critical_system'] = sys.critical.low == 1;
+      affectedSystems.get(sys.id)['risk']['system_type'] = sys.type;
     }
   })
 }

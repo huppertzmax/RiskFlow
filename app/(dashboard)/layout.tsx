@@ -48,7 +48,7 @@ function Investigation() {
         style={{ color: "#FFFFFF" }}
       >
         <IconSquareRoundedArrowLeft />
-        <Title order={2}>This is h1 title</Title>
+        <Title order={2}>RiskFlow</Title>
 
       </Flex>
 

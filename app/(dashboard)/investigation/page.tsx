@@ -9,6 +9,9 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { CVESpiderChart } from "./cve-spider-chart"
 import { listOfSystems } from "./neo4j_query_table_data_2024-11-23"
+import { EXAMPLE_CVE, EXAMPLE_CVE_2 } from "./example-cve"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
 
 const steps = [
   {
@@ -17,51 +20,13 @@ const steps = [
   }
 ]
 
-const EXAMPLE_CVE = {
-  "id": "CVE-1900-8033",
-  "name": "Critical Remote Code Execution Vulnerability in Docker",
-  "date": "2024-11-20",
-  "description": "A critical vulnerability has been discovered in Docker’s container runtime, identified as CVE-1900-8033. This vulnerability allows an attacker to execute arbitrary code on the host system by exploiting a flaw in the handling of API requests. The issue arises from improper validation of input data, leading to a buffer overflow condition. Impact: Successful exploitation of this vulnerability can lead to remote code execution, allowing attackers to gain control over the host system. This can result in data breaches, service disruptions, and unauthorized access to sensitive information.",
-  "epss": 96.89,
-  "cvss": {
-    "base_score": 5.5,
-    "exploitability_score": 1.3,
-    "impact_score": 5.8,
-    "access_vector": "network",
-    "access_complexity": "medium",
-    "authentication": "none",
-    "confidentiality_impact": "complete",
-    "integrity_impact": "complete",
-    "availability_impact": "complete"
-  },
-  "affected_cpe": [
-    {
-      "vendor": "docker",
-      "product": "docker",
-      "min_version": "23.0",
-      "max_version": "26.1.3"
-    },
-    {
-      "vendor": "docker",
-      "product": "cli",
-      "min_version": "23.0",
-      "max_version": "26.1.3"
-    },
-    {
-      "vendor": "docker",
-      "product": "desktop",
-      "min_version": "23.0",
-      "max_version": "26.1.3"
-    }
-  ],
-  "solution": "Currently, there is no official solution available. Implement network segmentation to limit exposure. Monitor systems for unusual activity and apply security best practices."
-}
-
 export default function InvestigationPage() {
   const [currentStep, setCurrentStep] = useState({ name: "", value: 0 })
   const [selectedSystems, setSelectedSystems] = useState<string[]>([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [cves, setCves] = useState<typeof EXAMPLE_CVE[]>([])
+  const [cves, setCves] = useState<typeof EXAMPLE_CVE[]>([EXAMPLE_CVE_2])
+  const [jsonInput, setJsonInput] = useState("")
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => setCurrentStep(steps[0]), 500)
@@ -69,10 +34,11 @@ export default function InvestigationPage() {
   }, [])
 
   const filteredSystems = listOfSystems
-    .filter(sys =>
-      sys.name.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .slice(0, 100)
+    .filter(sys => {
+      const displayName = `${sys.name} (${sys.id})`
+      return displayName.toLowerCase().includes(searchTerm.toLowerCase())
+    })
+    .slice(0, 200)
 
   const handleAnalyze = () => {
     if (selectedSystems.length === 0 || cves.length === 0) {
@@ -80,6 +46,30 @@ export default function InvestigationPage() {
       return
     }
     console.log("Analyzing:", { selectedSystems, cves })
+  }
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    try {
+      const text = await file.text()
+      const parsedCVE = JSON.parse(text)
+      setCves([...cves, parsedCVE])
+    } catch (error) {
+      alert("Invalid JSON file format")
+    }
+  }
+
+  const handleAddCVE = () => {
+    try {
+      const parsedCVE = JSON.parse(jsonInput)
+      setCves([...cves, parsedCVE])
+      setJsonInput("")
+      setDialogOpen(false)
+    } catch (error) {
+      alert("Invalid JSON format")
+    }
   }
 
   return (
@@ -93,14 +83,37 @@ export default function InvestigationPage() {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold">CVEs</h3>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline">
+              <input
+                type="file"
+                id="file-upload"
+                className="hidden"
+                onChange={handleFileUpload}
+                accept=".json,.txt"
+              />
+              <Button size="sm" variant="outline" onClick={() => document.getElementById('file-upload')?.click()}>
                 <Upload className="h-4 w-4 mr-2" />
                 Upload
               </Button>
-              <Button size="sm" variant="outline">
-                <Plus className="h-4 w-4 mr-2" />
-                Add
-              </Button>
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" variant="outline">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add CVE</DialogTitle>
+                  </DialogHeader>
+                  <Textarea
+                    value={jsonInput}
+                    onChange={(e) => setJsonInput(e.target.value)}
+                    placeholder="Paste CVE JSON here..."
+                    className="min-h-[200px]"
+                  />
+                  <Button onClick={handleAddCVE} className="mt-4">Add CVE</Button>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
           {cves && cves.length > 0 ? (
@@ -141,33 +154,33 @@ export default function InvestigationPage() {
             {filteredSystems.map((system) => (
               <div key={system.id} className="flex items-center space-x-2 p-2">
                 <Checkbox
-                  checked={selectedSystems.includes(system.id)}
+                  checked={selectedSystems.includes(system.id.toString())}
                   onCheckedChange={(checked: boolean) => {
                     setSelectedSystems(
                       checked
-                        ? [...selectedSystems, system.id]
-                        : selectedSystems.filter(id => id !== system.id)
+                        ? [...selectedSystems, system.id.toString()]
+                        : selectedSystems.filter(id => id !== system.id.toString())
                     )
                   }}
                 />
-                <label className="text-sm">{system.name}</label>
+                <label className="text-sm">{system.name} ({system.id})</label>
               </div>
             ))}
           </ScrollArea>
         </div>
 
-        {/* Visualization Column */}
-        <div>
-          <CVESpiderChart cves={cves} />
-          <Button
-            className="w-full mt-4"
-            size="lg"
-            onClick={handleAnalyze}
-            disabled={selectedSystems.length === 0 || cves.length === 0}
-          >
-            Run Analysis
-          </Button>
-        </div>
+        {cves.length > 0 && (
+          <div className="border rounded-lg p-4 flex flex-col justify-between">
+            <CVESpiderChart cves={cves} />
+            <Button
+              className="w-full mt-4"
+              size="lg"
+              onClick={handleAnalyze}
+            >
+              Run Analysis
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )

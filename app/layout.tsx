@@ -1,5 +1,5 @@
 import './globals.css';
-
+import '@mantine/core/styles.css';
 import { Analytics } from '@vercel/analytics/react';
 
 export const metadata = {

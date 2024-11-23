@@ -69,24 +69,24 @@ function DesktopNavMain() {
         style={{ padding: 20 }}
       />
 
-      <nav className="flex flex-col items-center gap-4 sm:py-5 text-white font-bold pl-3 pr-8">
+      <nav className="flex flex-col items-stretch gap-4 sm:py-5 text-white font-bold w-[200px]">
         <NavLink
           href="/report"
           label="Report"
           leftSection={<IconLayoutDashboard size="1rem" stroke={1.5} className="hover:text-black duration-150" />}
-          className="w-48 pl-5 text-white hover:text-black rounded-sm duration-150"
+          className="w-full px-5 text-white hover:text-black rounded-sm duration-150"
         />
         <NavLink
           href="/management"
           label="Management"
           leftSection={<IconListCheck size="1rem" stroke={1.5} className="hover:text-black duration-150" />}
-          className="w-48 pl-5 text-white hover:text-black rounded-sm duration-150"
+          className="w-full px-5 text-white hover:text-black rounded-sm duration-150"
         />
         <NavLink
           href="/investigation"
           label="Investigation"
           leftSection={<IconArrowGuideFilled size="1rem" stroke={1.5} className="hover:text-black duration-150" />}
-          className="w-48 pl-5 text-white hover:text-black rounded-sm duration-150"
+          className="w-full px-5 text-white hover:text-black rounded-sm duration-150"
         />
       </nav>
     </aside>

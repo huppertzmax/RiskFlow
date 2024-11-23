@@ -32,19 +32,17 @@ export default function ReportSummaryCharts({ report }: ReportSummaryChartsProps
   const totalCVE = cve_count.reduce((acc, curr) => acc + curr.count, 0)
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-2 gap-4 p-8">
       {/* Top Row: Probability and Impact */}
       <RadialChartText
         title="Probability Score"
         value={overall_score.probability}
         maxValue={10}
-        gradientColors={["green", "red"]}
       />
       <RadialChartText
         title="Impact Score"
         value={overall_score.impact}
         maxValue={10}
-        gradientColors={["green", "red"]}
       />
 
       {/* Bottom Row: CVE Count and Top CVEs */}
@@ -58,13 +56,19 @@ export default function ReportSummaryCharts({ report }: ReportSummaryChartsProps
           <CardTitle>Top CVEs</CardTitle>
         </CardHeader>
         <CardContent>
-          <ul className="list-disc pl-5">
+          <div className="space-y-2">
             {cve_count.map((cve) => (
-              <li key={cve.name}>
-                {cve.name}: {cve.count}
-              </li>
+              <div
+                key={cve.name}
+                className="flex items-center justify-between rounded-lg border p-3 text-sm"
+              >
+                <span className="font-medium">{cve.name}</span>
+                <span className="rounded-full bg-muted px-2 py-1 text-xs">
+                  {cve.count}
+                </span>
+              </div>
             ))}
-          </ul>
+          </div>
         </CardContent>
       </Card>
     </div>

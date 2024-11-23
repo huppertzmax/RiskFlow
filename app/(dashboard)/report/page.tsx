@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/card';
 import { Chip } from '@mantine/core';
 
-export default function CustomersPage() {
+export default function ReportPage() {
   return (
     <div>
       <Chip>Awesome chip</Chip>

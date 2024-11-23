@@ -3,6 +3,7 @@ import { File, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ProductsTable } from './products-table';
 import { getProducts } from '@/lib/db';
+import { red } from 'next/dist/lib/picocolors';
 
 export default async function ProductsPage(
   props: {
@@ -19,7 +20,7 @@ export default async function ProductsPage(
 
   return (
     <Tabs defaultValue="all">
-      <div className="flex items-center">
+      <div className="flex items-center" >
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="active">Active</TabsTrigger>

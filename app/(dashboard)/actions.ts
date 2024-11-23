@@ -1,44 +1,8 @@
 'use server';
+import { read } from '@/lib/neo4j'
+import {versionToNumericVersion} from '@/lib/utils'
+import { EXAMPLE_CVE } from './investigation/example-cve';
 
-export const EXAMPLE_CVE = {
-  "id": "CVE-1900-8033",
-  "name": "Critical Remote Code Execution Vulnerability in Docker",
-  "date": "2024-11-20",
-  "description": "A critical vulnerability has been discovered in Docker’s container runtime, identified as CVE-1900-8033. This vulnerability allows an attacker to execute arbitrary code on the host system by exploiting a flaw in the handling of API requests. The issue arises from improper validation of input data, leading to a buffer overflow condition. Impact: Successful exploitation of this vulnerability can lead to remote code execution, allowing attackers to gain control over the host system. This can result in data breaches, service disruptions, and unauthorized access to sensitive information.",
-  "epss": 96.89,
-  "cvss": {
-    "base_score": 5.5,
-    "exploitability_score": 1.3,
-    "impact_score": 5.8,
-    "access_vector": "network",
-    "access_complexity": "medium",
-    "authentication": "none",
-    "confidentiality_impact": "complete",
-    "integrity_impact": "complete",
-    "availability_impact": "complete"
-  },
-  "affected_cpe": [
-    {
-      "vendor": "docker",
-      "product": "docker",
-      "min_version": "23.0",
-      "max_version": "26.1.3"
-    },
-    {
-      "vendor": "docker",
-      "product": "cli",
-      "min_version": "23.0",
-      "max_version": "26.1.3"
-    },
-    {
-      "vendor": "docker",
-      "product": "desktop",
-      "min_version": "23.0",
-      "max_version": "26.1.3"
-    }
-  ],
-  "solution": "Currently, there is no official solution available. Implement network segmentation to limit exposure. Monitor systems for unusual activity and apply security best practices."
-}
 
 const selectedSystems = [
   {
@@ -85,5 +49,58 @@ const exampleResults = {
 
 // input: 
 export async function runRiskAnalysis(cves: typeof EXAMPLE_CVE[], systems: typeof selectedSystems[]) {
-  return exampleResults
+  const affectedSystems = [];
+  let newSystems = [];
+  for (let i = 0; i < cves.length; i++) {
+    const systemList = await selectAffectedSystems(cves[i]);
+    for (let j = 0; j < systemList.length; j++) {
+      let exists = false;
+      let k = 0;
+      for (; k < affectedSystems.length; k++) {
+        if (affectedSystems[k].id == systemList[j].id) {
+          exists = true;
+          break;
+        }
+      }
+      if (exists && !affectedSystems[k].cve.includes(cves[i].id)) {
+        affectedSystems[k].cve.push(cves[i].id);
+      }
+      else {
+        newSystems.push(systemList[j]);
+      }
+    }
+    affectedSystems.push(...newSystems);
+    newSystems = [];
+  }
+  return affectedSystems;
+}
+
+export async function selectAffectedSystems(cve: typeof EXAMPLE_CVE) {
+  const selectedSystems = [];
+  const idSet = new Set<number>();
+  for (let i = 0; i < cve.affected_cpe.length; i++) {
+    const cpe = cve.affected_cpe[i];
+    
+    let res = await read(`
+      Match (sy:System)-[related_software]->(s:SoftwareInstallation) 
+      WHERE toLower(s.publisher) CONTAINS $vendor AND toLower(s.product) CONTAINS $product AND s.numeric_Version >= $min_version AND s.numeric_Version <= $max_version 
+      RETURN distinct sy.id as id, sy.sub_type as name;
+      `,
+    {
+      vendor: cpe.vendor,
+      product: cpe.product,
+      min_version: versionToNumericVersion(cpe.min_version),
+      max_version: versionToNumericVersion(cpe.max_version),
+    });
+    res = res.filter(sys => {
+      if (idSet.has(sys.id)) {return false;}
+      else {
+        idSet.add(sys.id);
+        return true;
+      }
+    })
+    res = res.map(sys => {return {id: sys.id.low, name: sys.name, cve: [cve.id]}});
+    selectedSystems.push(...res);
+  }
+  return selectedSystems;
 }

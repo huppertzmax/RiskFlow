@@ -64,8 +64,9 @@ function DesktopNavMain() {
     <aside className="fixed inset-y-0 left-0 z-10 hidden flex-col sm:flex">
       <Space h={25} />
       <Image
-        h={70}
-        src="/Images/Siemens-Logo.png"
+        h={90}
+        w={200}
+        src="/Images/RiskFlow-Logo.png"
         style={{ padding: 20 }}
       />
 

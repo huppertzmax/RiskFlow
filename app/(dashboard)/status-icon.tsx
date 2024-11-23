@@ -9,10 +9,13 @@ import {
 } from "@/components/ui/tooltip"
 import { toast } from "@/components/ui/use-toast";
 
+const DISABLE = true
+
 export const StatusIcon = ({ isLoadingAnalysis }: { isLoadingAnalysis: () => Promise<boolean> }) => {
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
+        if (DISABLE) return;
         const checkStatus = async () => {
             const isLoadingUpdate = await isLoadingAnalysis();
             if (!isLoadingUpdate && isLoading) {

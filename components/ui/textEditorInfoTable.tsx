@@ -3,26 +3,28 @@ import { Table, Checkbox, TextInput, Button, List, Text, Title, Space, Flex } fr
 import { Vulnerability } from '@/lib/types';
 
 interface TextEditorInfoTableProps {
-  vulnerabilities: Vulnerability[]; // Pass vulnerabilities as a prop
+  vulnerabilities: Vulnerability[];
+  onSendEmail: (email: string) => void;
+  sending: boolean;
 }
 
-export default function TextEditorInfoTable({ vulnerabilities }: TextEditorInfoTableProps) {
+export default function TextEditorInfoTable({ vulnerabilities, onSendEmail, sending }: TextEditorInfoTableProps) {
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const [recipientName, setRecipientName] = useState('');
   const [recipientEmail, setRecipientEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState<string | undefined>(undefined);
   const [notified, setNotified] = useState(false);
 
   const handleNotify = () => {
-    if (recipientEmail && phoneNumber) {
-      alert(`Notification sent to ${recipientName || 'Recipient'} via email: ${recipientEmail} and phone: ${phoneNumber}`);
+    // if (recipientEmail && phoneNumber) {
+    //   alert(`Notification sent to ${recipientName || 'Recipient'} via email: ${recipientEmail} and phone: ${phoneNumber}`);
+    //   setNotified(true);
+    // } else {
+    //   alert('Please fill out both email and phone number fields before notifying.');
+    // }
+    if (recipientEmail) {
+      onSendEmail(recipientEmail);
       setNotified(true);
-    } else {
-      alert('Please fill out both email and phone number fields before notifying.');
     }
   };
-
-
 
   return (
     <>
@@ -45,7 +47,7 @@ export default function TextEditorInfoTable({ vulnerabilities }: TextEditorInfoT
           Notify via Mail
         </Button>
       </Flex>
-      <Space h={20} />
+      {/* <Space h={20} />
       <Flex align="end" gap={20}>
         <TextInput
           style={{ width: 200 }}
@@ -60,7 +62,7 @@ export default function TextEditorInfoTable({ vulnerabilities }: TextEditorInfoT
         >
           Notify via SMS
         </Button>
-      </Flex>
+      </Flex> */}
 
       <Space h={50} />
 

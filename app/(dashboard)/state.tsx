@@ -134,7 +134,7 @@ export async function getTasks(): Promise<Task[]> {
           urgency: "Low",
         },
       ]);
-    }, 3000); // 3-second delay
+    }, 500); // 3-second delay
   });
 }
 
@@ -147,6 +147,6 @@ export async function getEmployees(): Promise<Employee[]> {
         { id: 2, name: "Bob Smith", role: "Security Specialist", status: "Busy" },
         { id: 3, name: "Charlie Brown", role: "System Admin", status: "Available" },
       ]);
-    }, 3000); // 3-second delay
+    }, 500); // 3-second delay
   });
 }

@@ -7,30 +7,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-
-interface CVECount {
-  name: string
-  count: number
-}
-
-interface Report {
-  individual_scores: any[] // Define more specific types as needed
-  overall_score: {
-    probability: number
-    impact: number
-    danger: string
-  }
-  cve_count: CVECount[]
-}
+import { EnrichedReport } from "@/lib/types"
 
 interface ReportSummaryChartsProps {
-  report: Report
+  report: EnrichedReport
 }
 
 export default function ReportSummaryCharts({ report }: ReportSummaryChartsProps) {
   const { overall_score, cve_count } = report
   const totalCVE = cve_count.reduce((acc, curr) => acc + curr.count, 0)
 
+  if (!report) {
+    return null
+  }
   return (
     <div className="grid grid-cols-2 gap-4 p-8">
       {/* Top Row: Probability and Impact */}

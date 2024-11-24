@@ -61,7 +61,7 @@ export function RadialChartStacked({
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px] mb-[-60px] mt-[60px]"
+          className="mx-auto aspect-square max-h-[200px] mb-[-60px] mt-[60px]"
         >
           <RadialBarChart
             width={200}
@@ -102,7 +102,7 @@ export function RadialChartStacked({
                 key={cve.name}
                 dataKey={cve.name}
                 stackId="stack1"
-                fill={`hsl(${Math.random() * 360}, ${70 + (Math.random() * 30)}%, ${50 + (Math.random() * 30)}%)`}
+                fill={`hsl(${180 + (index * 37) % 360}, 80%, 70%)`}
                 className="stroke-transparent stroke-2"
               />
             ))}

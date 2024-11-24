@@ -5,6 +5,8 @@ import '@mantine/tiptap/styles.css';
 import React, { useState } from 'react';
 import TextEditorInfoTable from '@/components/ui/textEditorInfoTable';
 import { Vulnerability } from '@/lib/types';
+import { sendEmail } from 'app/actions/email-actions';
+import { toast } from './use-toast';
 
 interface TextEditorModalProps {
   vulnerabilities: Vulnerability[]; // Add vulnerabilities as a prop
@@ -17,24 +19,35 @@ export default function TextEditorModal({ vulnerabilities }: TextEditorModalProp
   );
   const [sending, setSending] = useState(false);
 
-  const handleSendEmail = (email: string) => {
+  const handleSendEmail = async (email: string) => {
     if (!email || !editorContent) return;
     
     setSending(true);
-    
-    // Convert HTML to plain text (remove HTML tags)
-    const plainText = editorContent.replace(/<[^>]+>/g, '');
-    
-    // Create mailto URL with encoded subject and body
-    const mailtoUrl = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent('Security Vulnerability Report')}&body=${encodeURIComponent(plainText)}`;
-    
-    // Open the mailto link
-    window.location.href = mailtoUrl;
-    
-    // Close the modal after opening mailto
-    close();
-
-    setSending(false);
+    try {
+      const result = await sendEmail(
+        email,
+        'Security Vulnerability Report',
+        editorContent
+      );
+      
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Report sent successfully",
+          variant: "default",
+        });
+      } else {
+        throw new Error('Failed to send email');
+      }
+    } catch (error) {
+      toast({
+        title: "Error", 
+        description: "Failed to send report",
+        variant: "destructive",
+      });
+    } finally {
+      setSending(false);
+    }
   };
 
   return (

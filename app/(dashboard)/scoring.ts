@@ -7,7 +7,7 @@ export function calculateRiskScores(affectedSystems: Map<number, object>, cves: 
     let global_scores = individual_scores.global;
     let cve_count = getCVECount(affectedSystems, cves);
 
-    return {individual_scores: individual_scores, overall_scores: global_scores, cve_count: cve_count};
+    return { individual_scores: individual_scores.individualScores, overall_score: global_scores, cve_count: cve_count };
 }
 
 
@@ -21,7 +21,7 @@ function calculateScoresBySystem(affectedSystems: Map<number, object>, cves: any
         let dictImpact = calculateIndividualImpactScore(sys);
         let dictRecommendations = calculateRecommendActions(dictProb.allPatchable, dictImpact.score, dictProb.prob);
         let dictPersons = sys['persons'];
-        let dict = {system_id: sys.id, recommended_actions: dictRecommendations, persons: dictPersons, risk: dictProb.dict, impact: dictImpact.dict}
+        let dict = { system_id: sys.id, recommended_actions: dictRecommendations, persons: dictPersons, risk: { ...dictProb.dict, impact: dictImpact.dict.impact } }
         individualScores.push(dict);
 
         mulProp *= (1. - dictProb.prob);
@@ -30,21 +30,21 @@ function calculateScoresBySystem(affectedSystems: Map<number, object>, cves: any
 
     let global = calculateOverallScores(mulProp, mulImpact);
 
-    return {individualScores: individualScores, global: global};
+    return { individualScores: individualScores, global: global };
 }
 
 function calculateIndividualProbScore(system: object, cves: any) {
-    let mul = 1.; 
+    let mul = 1.;
     let prob = 1.;
     let allPatchable = true;
     let reasons = [];
     for (let i = 0; i < system.cves.length; i++) {
         let cve = findMatchingCVE(system.cves[i], cves);
-        let epss = cve.epss/100.;
-        reasons.push({cve: cve.id, epss: epss});
+        let epss = cve.epss / 100.;
+        reasons.push({ cve: cve.id, epss: epss });
 
         if (!cve.patchable) {
-            epss = (1. - Math.pow((1. - epss), 2)) 
+            epss = (1. - Math.pow((1. - epss), 2))
             allPatchable = false;
         }
         mul *= (1. - epss)
@@ -55,7 +55,7 @@ function calculateIndividualProbScore(system: object, cves: any) {
         prob *= internetAccessFactor;
     }
 
-    return {dict: {probability: {score: Math.abs(prob), reasons: reasons}}, prob: Math.abs(prob), allPatchable: allPatchable};
+    return { dict: { probability: { score: Math.abs(prob), reasons: reasons } }, prob: Math.abs(prob), allPatchable: allPatchable };
 }
 
 function calculateIndividualImpactScore(system: object) {
@@ -63,12 +63,12 @@ function calculateIndividualImpactScore(system: object) {
     let reasons = [];
 
     if (system['risk']['critical_system']) {
-        points += 5; 
+        points += 5;
         reasons.push('Critical System');
     }
 
     if (system['risk']['system_type'] === 'Client') {
-        points += 1; 
+        points += 1;
     }
     else if (system['risk']['system_type'] === 'Server') {
         points += 1.5
@@ -79,7 +79,7 @@ function calculateIndividualImpactScore(system: object) {
     reasons.push(system['risk']['system_type']);
 
     if (system['risk']['network_segment_risk'] >= 1 && system['risk']['network_segment_risk'] < 3) {
-        points += 1; 
+        points += 1;
         reasons.push('Low network segment risk');
     }
     else if (system['risk']['network_segment_risk'] >= 3 && system['risk']['network_segment_risk'] < 10) {
@@ -92,7 +92,7 @@ function calculateIndividualImpactScore(system: object) {
     }
 
     if (system['risk']['network_segment_exposed'] >= 1 && system['risk']['network_segment_exposed'] < 3) {
-        points += 1; 
+        points += 1;
         reasons.push('Low network segment exposure');
     }
     else if (system['risk']['network_segment_exposed'] >= 3 && system['risk']['network_segment_exposed'] < 10) {
@@ -106,26 +106,26 @@ function calculateIndividualImpactScore(system: object) {
 
     points /= 23.;
 
-    return {dict: {impact: {score: points, reasons: reasons}}, score: points};
+    return { dict: { impact: { score: points, reasons: reasons } }, score: points };
 }
 
 function calculateRecommendActions(allPatchable, impact, probability) {
     let isolation = 'none';
-    if (!allPatchable) {isolation = 'necessary'}
-    else if (impact >= 7.5) {isolation = 'recommended'}
+    if (!allPatchable) { isolation = 'necessary' }
+    else if (impact >= 7.5) { isolation = 'recommended' }
 
     let days = Math.abs(60 - Math.round(60 * (probability * impact)));
-    
-    return {isolate_network: isolation, patchable: allPatchable, days: days};
+
+    return { isolate_network: isolation, patchable: allPatchable, days: days };
 }
 
 function calculateOverallScores(mulProp, mulImpact) {
     let prop = 1. - mulProp;
     let impact = 1. - mulImpact;
     let mul = Math.abs(prop * impact);
-    let danger;
+    let danger: "low" | "medium" | "high" = 'low';
 
-    if ( mul <= 0.3) {
+    if (mul <= 0.3) {
         danger = 'low';
     }
     else if (mul > 0.3 && mul < 70) {
@@ -135,7 +135,7 @@ function calculateOverallScores(mulProp, mulImpact) {
         danger = 'high';
     }
 
-    return {probability: prop, impact: impact, danger: danger}
+    return { probability: prop, impact: impact, danger: danger }
 }
 
 function getCVECount(affectedSystems: Map<number, object>, cves: any[]) {
@@ -150,7 +150,7 @@ function getCVECount(affectedSystems: Map<number, object>, cves: any[]) {
                 count++;
             }
         }
-        cveCount.push({name: cve.id, count: count});
+        cveCount.push({ name: cve.id, count: count });
         count = 0;
     });
     return cveCount;

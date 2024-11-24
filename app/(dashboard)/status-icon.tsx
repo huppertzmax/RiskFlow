@@ -8,6 +8,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { toast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
 
 const DISABLE = false
 
@@ -24,7 +25,8 @@ export const StatusIcon = ({ isLoadingAnalysis }: { isLoadingAnalysis: () => Pro
                     description: "Find your new report in the reports tab!", 
                     variant: "default", 
                     className: "bg-green-200", 
-                    duration: 6000 
+                    duration: 4000,
+                    action: <Button onClick={() => window.location.href = "/report"}>View Report</Button>
                 });
                 console.log("change")
             }

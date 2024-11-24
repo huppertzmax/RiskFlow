@@ -77,10 +77,10 @@ export const ReportSchema = z.object({
           epss: z.number(),
         })),
       }),
-      impact: z.object({
-        score: z.number(),
-        reasons: z.array(z.string()),
-      }),
+    }),
+    impact: z.object({
+      score: z.number(),
+      reasons: z.array(z.string()),
     }),
   })),
   overall_score: z.object({

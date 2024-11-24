@@ -7,7 +7,7 @@ export function calculateRiskScores(affectedSystems: Map<number, object>, cves: 
     let global_scores = individual_scores.global;
     let cve_count = getCVECount(affectedSystems, cves);
 
-    return {individual_scores: individual_scores, overall_scores: global_scores, cve_count: cve_count};
+    return {individual_scores: individual_scores.individualScores, overall_score: global_scores, cve_count: cve_count};
 }
 
 
@@ -123,7 +123,7 @@ function calculateOverallScores(mulProp, mulImpact) {
     let prop = 1. - mulProp;
     let impact = 1. - mulImpact;
     let mul = Math.abs(prop * impact);
-    let danger;
+    let danger: "low" | "medium" | "high" = 'low';
 
     if ( mul <= 0.3) {
         danger = 'low';

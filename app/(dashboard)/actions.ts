@@ -75,7 +75,8 @@ export async function runRiskAnalysis(cves: typeof EXAMPLE_CVE[], infectedSystem
   const end = performance.now();
   console.log(`Execution Time: ${(end - start)/1000} sec`);
   
-  return calculateRiskScores(affectedSystems, cves)
+  const result: Report = calculateRiskScores(affectedSystems, cves)
+  return result;
 }
 
 function splitSystemIdsInChunks(affectedSystems: Map<number, object>, chunkSize: number) {

@@ -46,7 +46,7 @@ export default async function DashboardLayout({
           <DesktopNavMain />
           <div className="flex flex-col sm:gap-4 ml-[200px] mr-4">
             <Space h={20} />
-            <Header name={session ? "Hello, " + session?.user?.name : currentDate} />
+            <Header name={(session ? "Hello, " + session?.user?.name : currentDate) || ""} />
             <MainContent>{children}</MainContent>
             <Toaster />
           </div>
@@ -86,6 +86,7 @@ function Investigation({ name }: { name: string }) {
 // Custom Navigation Link Component
 interface CustomNavLinkProps extends NavLinkProps {
   fontSize?: string; // Optional font size prop
+  href: string; // Add href here
 }
 
 export function CustomNavLink({

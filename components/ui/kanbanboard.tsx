@@ -241,8 +241,6 @@ export default function KanbanBoard() {
                 setNewTask({ ...newTask, dueDate: value });
                 setIsDatePickerOpen(false); // Close the picker
               }}
-              clearable={false}
-              withCloseButton
               mt="xs"
             />
           )}
@@ -332,8 +330,6 @@ export default function KanbanBoard() {
                     } as Task);
                     setIsDatePickerOpen(false); // Close the picker
                   }}
-                  clearable={false}
-                  withCloseButton
                   mt="xs"
                 />
               )}

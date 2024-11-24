@@ -12,11 +12,11 @@ export function calculateRiskScores(affectedSystems: Map<number, object>, cves: 
 
 
 function calculateScoresBySystem(affectedSystems: Map<number, object>, cves: any[]) {
-    let individualScores = []
+    let individualScores: any[] = [];
     let mulProp = 1.;
     let mulImpact = 1.;
 
-    affectedSystems.forEach(sys => {
+    affectedSystems.forEach((sys: any) => {
         let dictProb = calculateIndividualProbScore(sys, cves);
         let dictImpact = calculateIndividualImpactScore(sys);
         let dictRecommendations = calculateRecommendActions(dictProb.allPatchable, dictImpact.score, dictProb.prob);
@@ -33,7 +33,7 @@ function calculateScoresBySystem(affectedSystems: Map<number, object>, cves: any
     return { individualScores: individualScores, global: global };
 }
 
-function calculateIndividualProbScore(system: object, cves: any) {
+function calculateIndividualProbScore(system: any, cves: any) {
     let mul = 1.;
     let prob = 1.;
     let allPatchable = true;
@@ -58,7 +58,7 @@ function calculateIndividualProbScore(system: object, cves: any) {
     return { dict: { probability: { score: Math.abs(prob), reasons: reasons } }, prob: Math.abs(prob), allPatchable: allPatchable };
 }
 
-function calculateIndividualImpactScore(system: object) {
+function calculateIndividualImpactScore(system: any) {
     let points = 0.;
     let reasons = [];
 
@@ -109,7 +109,7 @@ function calculateIndividualImpactScore(system: object) {
     return { dict: { impact: { score: points, reasons: reasons } }, score: points };
 }
 
-function calculateRecommendActions(allPatchable, impact, probability) {
+function calculateRecommendActions(allPatchable: boolean, impact: number, probability: number) {
     let isolation = 'none';
     if (!allPatchable) { isolation = 'necessary' }
     else if (impact >= 7.5) { isolation = 'recommended' }
@@ -119,7 +119,7 @@ function calculateRecommendActions(allPatchable, impact, probability) {
     return { isolate_network: isolation, patchable: allPatchable, days: days };
 }
 
-function calculateOverallScores(mulProp, mulImpact) {
+function calculateOverallScores(mulProp: number, mulImpact: number) {
     let prop = 1. - mulProp;
     let impact = 1. - mulImpact;
     let mul = Math.abs(prop * impact);
@@ -139,14 +139,14 @@ function calculateOverallScores(mulProp, mulImpact) {
 }
 
 function getCVECount(affectedSystems: Map<number, object>, cves: any[]) {
-    let cveCount = [];
+    let cveCount: any[] = [];
     let count = 0;
 
     let systems = Array.from(affectedSystems.values());
 
-    cves.forEach(cve => {
+    cves.forEach((cve: any) => {
         for (let i = 0; i < systems.length; i++) {
-            if (systems[i]['cves'].includes(cve.id)) {
+            if ((systems[i] as any)['cves'].includes(cve.id)) {
                 count++;
             }
         }

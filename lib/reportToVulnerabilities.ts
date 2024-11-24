@@ -3,7 +3,8 @@ import { Report, Vulnerability } from './types';
 export function convertReportToVulnerabilities(report: Report): Vulnerability[] {
     return report.individual_scores.map((score, index): Vulnerability => {
         // Determine color based on risk scores
-        const overallRisk = calculateOverallRisk(score.risk.probability.score, score.risk.impact.score);
+        
+        const overallRisk = calculateOverallRisk(score.risk.probability.score, (score.risk as any).impact.score);
         
         return {
             id: `VULN-${score.system_id}-${index}`,
@@ -16,7 +17,7 @@ export function convertReportToVulnerabilities(report: Report): Vulnerability[] 
                 human_readable: generateHumanReadableDescription(score),
                 risk_scores: {
                     probability_score: score.risk.probability.score,
-                    impact_score: score.risk.impact.score,
+                    impact_score: (score.risk as any).score,
                     overall_danger: overallRisk,
                 },
                 reasons: {
@@ -25,7 +26,7 @@ export function convertReportToVulnerabilities(report: Report): Vulnerability[] 
                         epss: reason.epss,
                         description: `CVE ${reason.cve} with an EPSS score of ${reason.epss}`,
                     })),
-                    impact: score.risk.impact.reasons,
+                    impact: (score.risk as any).impact.reasons,
                 },
                 recommended_actions: {
                     isolate_network: score.recommended_actions.isolate_network,
@@ -63,7 +64,7 @@ function getRiskColor(risk: "High" | "Medium" | "Low"): string {
 
 function generateHumanReadableDescription(score: Report['individual_scores'][0]): string {
     return `System ${score.system_id} has been identified with ${score.risk.probability.reasons.length} potential vulnerabilities. 
-    The system shows a probability score of ${(score.risk.probability.score * 100).toFixed(1)}% and an impact score of ${(score.risk.impact.score * 100).toFixed(1)}%. 
+    The system shows a probability score of ${(score.risk.probability.score * 100).toFixed(1)}% and an impact score of ${((score.risk as any).impact.score * 100).toFixed(1)}%. 
     ${score.recommended_actions.patchable ? 'This vulnerability can be patched' : 'This vulnerability requires manual intervention'}.`;
 }
 
@@ -78,7 +79,7 @@ function generateCVENotes(score: Report['individual_scores'][0]): string {
     const actionNeeded = score.recommended_actions.patchable 
         ? `Patchable vulnerability - action required within ${score.recommended_actions.days} days`
         : "Manual intervention required";
-    return `${actionNeeded}. Impact reasons: ${score.risk.impact.reasons.join(". ")}`;
+    return `${actionNeeded}. Impact reasons: ${(score.risk as any).impact.reasons.join(". ")}`;
 }
 
 function getCVEOccurrences(cve: string, cveCount: Report['cve_count']): number {

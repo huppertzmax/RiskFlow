@@ -15,9 +15,12 @@ export default function TextEditorModal({ vulnerabilities }: TextEditorModalProp
   const [editorContent, setEditorContent] = useState(() => 
     generateInitialContent(vulnerabilities)
   );
+  const [sending, setSending] = useState(false);
 
   const handleSendEmail = (email: string) => {
     if (!email || !editorContent) return;
+    
+    setSending(true);
     
     // Convert HTML to plain text (remove HTML tags)
     const plainText = editorContent.replace(/<[^>]+>/g, '');
@@ -30,6 +33,8 @@ export default function TextEditorModal({ vulnerabilities }: TextEditorModalProp
     
     // Close the modal after opening mailto
     close();
+
+    setSending(false);
   };
 
   return (
@@ -46,6 +51,7 @@ export default function TextEditorModal({ vulnerabilities }: TextEditorModalProp
             <TextEditorInfoTable 
               vulnerabilities={vulnerabilities}
               onSendEmail={handleSendEmail}
+              sending={sending}
             />
           </Grid.Col>
           <Grid.Col span={7}>

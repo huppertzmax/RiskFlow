@@ -14,7 +14,6 @@ import AccordionComponent from "@/components/ui/AccordionComponent";
 import InputForm from "@/components/ui/inputForm";
 import TextEditorModal from "@/components/ui/textEditorModal";
 import { TableComponentReport } from "@/components/ui/tableComponentReport";
-import { getVulnerabilityList as generateVulnerabilityList } from "../state";
 import { EnrichedReport, Vulnerability } from "@/lib/types";
 import { getAnalysisStatus, getFirstFinishedReportId, getReportById } from "../actions/analysis-db-actions";
 import ReportSummaryCharts from "./report-summary";
@@ -31,6 +30,9 @@ export default function ReportPage() {
         const { isProcessing } = await getAnalysisStatus();
         setLoading(isProcessing);
         const finishedReport = await getFirstFinishedReportId() as EnrichedReport;
+        if (!finishedReport) {
+          return
+        }
         setVulnerabilitiesList(finishedReport.gpt_vulnerabilities);
         setReport(finishedReport);
       } catch (error) {
@@ -42,7 +44,6 @@ export default function ReportPage() {
 
   return (
     <>
-
       <TabsElement
         loading={loading}
         vulnerabilitiesList={vulnerabilitiesList}

@@ -7,7 +7,7 @@ export async function getVulnerabilityList(): Promise<Vulnerability[]> {
       resolve([
         {
           id: "system-vulnerability-247012576",
-          image: "/Images/circle-red.png",
+          color: "red",
           label: "Critical Vulnerability in System 247012576",
           description: "A critical vulnerability impacting a high-value client system.",
           content: {
@@ -62,7 +62,7 @@ export async function getVulnerabilityList(): Promise<Vulnerability[]> {
         },
         {
           id: "system-vulnerability-347895321",
-          image: "/Images/circle-yellow.png",
+          color: "yellow",
           label: "Moderate Vulnerability in System 347895321",
           description: "A moderate vulnerability affecting a web server.",
           content: {

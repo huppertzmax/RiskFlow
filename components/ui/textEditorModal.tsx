@@ -13,10 +13,13 @@ interface TextEditorModalProps {
 }
 
 export default function TextEditorModal({ vulnerabilities }: TextEditorModalProps) {
+  console.log('Vulnerabilities received:', vulnerabilities);
   const [opened, { open, close }] = useDisclosure(false);
-  const [editorContent, setEditorContent] = useState(() => 
-    generateInitialContent(vulnerabilities)
-  );
+  const [editorContent, setEditorContent] = useState(() => {
+    const content = generateInitialContent(vulnerabilities);
+    console.log('Generated content:', content);
+    return content;
+  });
   const [sending, setSending] = useState(false);
 
   const handleSendEmail = async (email: string) => {
@@ -83,17 +86,29 @@ export default function TextEditorModal({ vulnerabilities }: TextEditorModalProp
 }
 
 function generateInitialContent(vulnerabilities: Vulnerability[]) {
+  if (!vulnerabilities?.length) {
+    console.log('No vulnerabilities provided or empty array');
+    return `
+      <h1>RiskFlow Security Vulnerability Report</h1>
+      <h2>List of Findings</h2>
+      <p>No vulnerabilities found.</p>
+    `;
+  }
+
   return `
     <h1>RiskFlow Security Vulnerability Report</h1>
     <h2>List of Findings</h2>
     <ul>
-      ${vulnerabilities.map(v => `
-        <li>
-          <strong>${v.label}</strong><br/>
-          Probability Score: ${v.content.risk_scores.probability_score}<br/>
-          Overall Danger Score: ${v.content.risk_scores.overall_danger}
-        </li>
-      `).join('')}
+      ${vulnerabilities.map(v => {
+        console.log('Processing vulnerability:', v);
+        return `
+          <li>
+            <strong>${v?.label || 'Unnamed Vulnerability'}</strong><br/>
+            Probability Score: ${v?.content?.risk_scores?.probability_score || 'N/A'}<br/>
+            Overall Danger Score: ${v?.content?.risk_scores?.overall_danger || 'N/A'}
+          </li>
+        `;
+      }).join('')}
     </ul>
   `;
 }

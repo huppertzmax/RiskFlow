@@ -4,6 +4,9 @@ import { analysisReports, db } from "@/lib/db"
 import { runRiskAnalysis } from "../actions"
 import { EXAMPLE_CVE } from "../investigation/example-cve"
 import { eq, desc } from "drizzle-orm"
+import { parseCVEWithAI } from "./parseCVEWithAI"
+import { EnrichedReport } from "@/lib/types"
+
 
 export async function runAnalysisInBackground(
     cves: typeof EXAMPLE_CVE[],
@@ -21,14 +24,20 @@ export async function runAnalysisInBackground(
         .returning({ id: analysisReports.id });
 
     try {
-        const report = await runRiskAnalysis(cves, systems);
-        
+        const report: EnrichedReport = await runRiskAnalysis(cves, systems);
+
+        const gptVulnerabilities = await Promise.all(report.individual_scores.map(async (score) => parseCVEWithAI(JSON.stringify(score))));
+        const enrichedReport = {
+            ...report,
+            gpt_vulnerabilities: gptVulnerabilities
+        }
+
         // Update report with results
         await db.update(analysisReports)
             .set({
                 status: 'completed',
                 timeEndProcessing: new Date(),
-                report: JSON.stringify(report)
+                report: JSON.stringify(enrichedReport)
             })
             .where(eq(analysisReports.id, newReport.id));
 
@@ -45,22 +54,4 @@ export async function runAnalysisInBackground(
         throw error;
     }
 }
-
-// Helper function to check status
-export async function getAnalysisStatus() {
-    const [latestReport] = await db
-        .select({
-            id: analysisReports.id,
-            status: analysisReports.status
-        })
-        .from(analysisReports)
-        .orderBy(desc(analysisReports.timeStartProcessing))
-        .limit(1);
-    
-    return {
-        isProcessing: latestReport?.status === 'processing',
-        reportId: latestReport?.id
-    };
-}
-
 

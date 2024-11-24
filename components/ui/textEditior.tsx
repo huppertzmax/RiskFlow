@@ -7,11 +7,15 @@ import TextAlign from '@tiptap/extension-text-align';
 import Superscript from '@tiptap/extension-superscript';
 import SubScript from '@tiptap/extension-subscript';
 import { Center, Space } from '@mantine/core';
+import { Vulnerability } from '@/lib/types';
 
-const content =
-  '<h2 style="text-align: center;">Security Vulnerability Report</h2><p>Dear Management Team,</p><p>I am writing to inform you about a recently discovered security vulnerability in our systems that requires immediate attention.</p><h3>Vulnerability Overview</h3><p>We have identified a <strong>critical security issue</strong> that needs to be addressed. Here are the key details:</p><ul><li><strong>Severity Level:</strong> Critical</li><li><strong>Affected Systems:</strong> [System Names]</li><li><strong>Potential Impact:</strong> Data breach, system compromise</li><li><strong>Current Status:</strong> Under investigation</li></ul><h3>Recommended Actions</h3><ul><li>Immediate patching of affected systems</li><li>Security audit of related components</li><li>User access review and updates</li><li>Implementation of additional monitoring</li></ul><p>Our security team is actively working on resolving this issue. We will provide regular updates as more information becomes available.</p><p>Please let me know if you need any additional information.</p><p>Best regards,<br>[Security Team]</p>';
+interface TextEditorProps {
+  vulnerabilities: Vulnerability[];
+  content?: string;
+  onChange?: (content: string) => void;
+}
 
-export default function TextEditor() {
+export default function TextEditor({ vulnerabilities, content, onChange }: TextEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -22,7 +26,12 @@ export default function TextEditor() {
       Highlight,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
     ],
-    content,
+    content: content || generateInitialContent(vulnerabilities),
+    onUpdate: ({ editor }) => {
+      if (onChange) {
+        onChange(editor.getHTML());
+      }
+    },
   });
 
   return (
@@ -77,4 +86,20 @@ export default function TextEditor() {
     </RichTextEditor>
     </Center>
   );
+}
+
+function generateInitialContent(vulnerabilities: Vulnerability[]) {
+  return `
+    <h1>RiskFlow Security Vulnerability Report</h1>
+    <h2>List of Findings</h2>
+    <ul>
+      ${vulnerabilities.map(v => `
+        <li>
+          <strong>${v.label}</strong><br/>
+          Probability Score: ${v.content.risk_scores.probability_score}<br/>
+          Overall Danger Score: ${v.content.risk_scores.overall_danger}
+        </li>
+      `).join('')}
+    </ul>
+  `;
 }

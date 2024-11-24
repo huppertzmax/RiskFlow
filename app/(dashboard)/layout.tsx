@@ -21,13 +21,21 @@ import { StatusIcon } from "./status-icon";
 import { User } from "./user";
 import { isLoadingAnalysis } from "./actions/analysis-db-actions";
 import { Toaster } from "@/components/ui/toaster";
+import { auth } from "@/lib/auth";
 
 // Main Layout Component
-export default function DashboardLayout({
+export default async function DashboardLayout({
                                           children,
                                         }: {
   children: React.ReactNode;
 }) {
+  const session = await auth()
+  const currentDate = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric', 
+    month: 'long',
+    day: 'numeric'
+  })
   return (
     <Providers>
       <MantineProvider>
@@ -38,7 +46,7 @@ export default function DashboardLayout({
           <DesktopNavMain />
           <div className="flex flex-col sm:gap-4 ml-[200px] mr-4">
             <Space h={20} />
-            <Header />
+            <Header name={session ? "Hello, " + session?.user?.name : currentDate} />
             <MainContent>{children}</MainContent>
             <Toaster />
           </div>
@@ -49,10 +57,10 @@ export default function DashboardLayout({
 }
 
 // Header Component
-function Header() {
+function Header({ name }: { name: string }) {
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-      <Investigation />
+      <Investigation name={name} />
       <SearchInput />
       <User />
     </header>
@@ -60,7 +68,7 @@ function Header() {
 }
 
 // Investigation Component
-function Investigation() {
+function Investigation({ name }: { name: string }) {
   return (
     <Flex
       direction={{ base: "column", sm: "row" }}
@@ -70,7 +78,7 @@ function Investigation() {
       align={"center"}
     >
       <IconChevronLeft stroke={3} />
-      <Title order={2}>Investigation 23</Title>
+      <Title order={2}>{name}</Title>
     </Flex>
   );
 }

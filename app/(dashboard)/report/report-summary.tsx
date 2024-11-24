@@ -26,12 +26,12 @@ export default function ReportSummaryCharts({ report }: ReportSummaryChartsProps
       <RadialChartText
         title="Probability Score"
         value={overall_score.probability}
-        maxValue={10}
+        maxValue={1}
       />
       <RadialChartText
         title="Impact Score"
         value={overall_score.impact}
-        maxValue={10}
+        maxValue={1}
       />
 
       {/* Bottom Row: CVE Count and Top CVEs */}

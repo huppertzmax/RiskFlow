@@ -34,6 +34,7 @@ export function RadialChartText({
   maxValue,
 }: RadialChartTextProps) {
   const percentage = (value / maxValue) * 100
+  const formattedValue = value.toLocaleString()
   const chartData = [{ name: title, value: percentage, fill: percentage >= 30 ? percentage < 60 ? "orange" : "red" : "green" }]
 
   return (
@@ -78,7 +79,7 @@ export function RadialChartText({
                           y={viewBox.cy}
                           className="fill-foreground text-4xl font-bold"
                         >
-                          {value}
+                          {formattedValue}
                         </tspan>
                         <tspan
                           x={viewBox.cx}

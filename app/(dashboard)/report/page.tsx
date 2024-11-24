@@ -18,7 +18,7 @@ import { getVulnerabilityList as generateVulnerabilityList } from "../state";
 import { EnrichedReport, Vulnerability } from "@/lib/types";
 import { getAnalysisStatus, getFirstFinishedReportId, getReportById } from "../actions/analysis-db-actions";
 import ReportSummaryCharts from "./report-summary";
-import { Spinner } from "@/components/icons";
+import { spinner } from "@/components/ui/spinner-svg";
 
 export default function ReportPage() {
   const [vulnerabilitiesList, setVulnerabilitiesList] = useState<Vulnerability[]>([]);

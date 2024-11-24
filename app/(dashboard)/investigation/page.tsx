@@ -17,7 +17,7 @@ import { runAnalysisInBackground } from "../actions/run-analysis-in-background"
 import { isLoadingAnalysis } from "../actions/analysis-db-actions"
 import { toast } from "@/components/ui/use-toast"
 
-export const maxDuration = 300;
+export const maxDuration = 60;
 
 const steps = [
   {

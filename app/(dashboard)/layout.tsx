@@ -110,6 +110,11 @@ export function CustomNavLink({
 function DesktopNavMain() {
   const navItems = [
     {
+      href: "/investigation",
+      label: "Investigation",
+      icon: <IconArrowGuideFilled size="1.5rem" stroke={1.5} />,
+    },
+    {
       href: "/report",
       label: "Report",
       icon: <IconLayoutDashboard size="1.5rem" stroke={1.5} />,
@@ -119,11 +124,6 @@ function DesktopNavMain() {
       href: "/management",
       label: "Management",
       icon: <IconListCheck size="1.5rem" stroke={1.5} />,
-    },
-    {
-      href: "/investigation",
-      label: "Investigation",
-      icon: <IconArrowGuideFilled size="1.5rem" stroke={1.5} />,
     },
   ];
 

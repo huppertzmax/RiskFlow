@@ -25,11 +25,15 @@ export default function AccordionComponent({
     renderItem: (item: any, index: number) => React.ReactNode
   ) => items.map((item, index) => <React.Fragment key={index}>{renderItem(item, index)}</React.Fragment>);
 
+  if (vulnerabilities.length === 0) {
+    return <Accordion chevronPosition="right" variant="contained"></Accordion>;
+  }
+
   const renderAccordionItems = vulnerabilities.map(
     ({
        id,
        label,
-       image,
+       color,
        description,
        content: {
          human_readable,
@@ -44,7 +48,19 @@ export default function AccordionComponent({
      }) => (
       <Accordion.Item value={id} key={id}>
         <Accordion.Control>
-          <AccordionLabel label={label} image={image} description={description} />
+          <Group>
+            <div style={{ 
+              backgroundColor: color, 
+              borderRadius: '50%', 
+              width: '30px', 
+              height: '30px', 
+              flexShrink: 0
+            }} />
+            <div>
+              <Text>{label}</Text>
+              <Text>{description}</Text>
+            </div>
+          </Group>
         </Accordion.Control>
         <Accordion.Panel>
           <Text size="sm" mb="xs">
@@ -131,8 +147,8 @@ export default function AccordionComponent({
           </ul>
           <Space h={20} />
           <Flex gap={20}>
-            <Button color="#000028">Create Tasks</Button>
-            <Button color="#000028">Select for Management Report</Button>
+            <Button color="#000028" onClick={() => window.location.href = '/management'}>Create Tasks</Button>
+            <Button color="#000028" onClick={() => window.location.href = '/management'}>Select for Management Report</Button>
           </Flex>
         </Accordion.Panel>
       </Accordion.Item>

@@ -6,6 +6,8 @@ import { EXAMPLE_CVE } from "../investigation/example-cve"
 import { eq, desc } from "drizzle-orm"
 import { parseCVEWithAI } from "./parseCVEWithAI"
 import { EnrichedReport } from "@/lib/types"
+import { convertReportToVulnerabilities } from "@/lib/reportToVulnerabilities"
+import { Report } from "@/lib/types"
 
 
 export async function runAnalysisInBackground(
@@ -24,9 +26,9 @@ export async function runAnalysisInBackground(
         .returning({ id: analysisReports.id });
 
     try {
-        const report: EnrichedReport = await runRiskAnalysis(cves, systems);
+        const report: Report = await runRiskAnalysis(cves, systems);
 
-        const gptVulnerabilities = await Promise.all(report.individual_scores.map(async (score) => parseCVEWithAI(JSON.stringify(score))));
+        const gptVulnerabilities = convertReportToVulnerabilities(report);
         const enrichedReport = {
             ...report,
             gpt_vulnerabilities: gptVulnerabilities

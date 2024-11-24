@@ -48,7 +48,7 @@ export async function getFirstFinishedReportId() {
     return finishedReport?.report ?? null;
 }
 
-export async function getReportById(id: string) {
+export async function getReportById(id: number) {
     const [report] = await db
         .select()
         .from(analysisReports)

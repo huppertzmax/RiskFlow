@@ -41,6 +41,6 @@ export async function parseCVEWithAI(plainText: string) {
         ],
         response_format: zodResponseFormat(CVESchema, "cve"),
     });
-    const cve = completion.choices[0].message.parsed;
-    return cve;
+    const gptReport = completion.choices[0].message.parsed;
+    return gptReport;
 }

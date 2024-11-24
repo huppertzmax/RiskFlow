@@ -2,6 +2,8 @@
 import { read } from '@/lib/neo4j'
 import {versionToNumericVersion} from '@/lib/utils'
 import { EXAMPLE_CVE } from './investigation/example-cve';
+import {calculateRiskScores} from 'app/(dashboard)/scoring'
+import {Report} from '@/lib/types'
 
 
 const selectedSystems = [
@@ -48,7 +50,7 @@ const exampleResults = {
 }
 
 // input: 
-export async function runRiskAnalysis(cves: typeof EXAMPLE_CVE[], infectedSystems: typeof selectedSystems) {
+export async function runRiskAnalysis(cves: typeof EXAMPLE_CVE[], infectedSystems: typeof selectedSystems): Promise<Report> {
   let affectedSystems = new Map<number, object>();
   const start = performance.now();
   console.log("Started analysis run")
@@ -66,13 +68,14 @@ export async function runRiskAnalysis(cves: typeof EXAMPLE_CVE[], infectedSystem
   ...criticalSystemPromises,
   ...exposedSystemPromises,
   findSystemInfos(affectedSystems),
+  findPersons(affectedSystems),
   ]);
 
   console.log("Ended analysis run")
   const end = performance.now();
   console.log(`Execution Time: ${(end - start)/1000} sec`);
   
-  return Array.from(affectedSystems.entries());
+  return calculateRiskScores(affectedSystems, cves)
 }
 
 function splitSystemIdsInChunks(affectedSystems: Map<number, object>, chunkSize: number) {
@@ -134,6 +137,10 @@ async function findAffectedSystemsByCVE(cve) {
         network_segment_exposed: 0,
         critical_system: false,
         system_type: "",
+      },
+      persons : {
+        technical: [],
+        manager: [],
       },
       name: sys.name,
       cves: [cve.id],
@@ -212,4 +219,26 @@ async function findExposedSystemsInSegment(affectedSystems: Map<number, object>)
       affectedSystems.get(sys.id)['risk']['network_segment_exposed'] = sys.count_exposed.low;
     }
   })
+}
+
+async function findPersons(affectedSystems: Map<number, object>) {
+  let res = await read(`
+    MATCH (s:System WHERE s.id IN $affected_systems)<-[:runs_on]-(:Application)-[:owned_by]->(:OrgUnit)<-[:head_of]-(m:Person)
+    CALL {
+    WITH s
+    MATCH (s)<-[:assigned_for]-(:AssignedSystemRole)<-[:role_assigned]-(p:Person) 
+    RETURN p.fullname as technican LIMIT 3
+    }
+    RETURN s.id as id, COLLECT(technican) as technicans, m.fullname as manager
+    `,
+    {
+      affected_systems: Array.from(affectedSystems.keys()),
+    });
+    res.forEach(sys => {
+      if (affectedSystems.has(sys.id)) {
+        affectedSystems.get(sys.id)['persons']['technical'] = [...sys.technicans];
+        affectedSystems.get(sys.id)['persons']['manager'] = [sys.manager];
+      }
+    })
+  
 }

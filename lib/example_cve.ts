@@ -75,5 +75,6 @@ export const EXAMPLE_CVE2 = {
       "max_version": "24.1.3"
     }
   ],
-  "solution": "Currently, there is no official solution available. Implement network segmentation to limit exposure. Monitor systems for unusual activity and apply security best practices."
+  "solution": "Currently, there is no official solution available. Implement network segmentation to limit exposure. Monitor systems for unusual activity and apply security best practices.",
+  "patchable": false,
 }

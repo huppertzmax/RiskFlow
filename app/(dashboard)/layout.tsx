@@ -124,7 +124,7 @@ function DesktopNavMain() {
       <Image
         h={90}
         w={200}
-        src="/Images/RiskFlow-Logo.png"
+        src="/Images/Siemens-logo.png"
         style={{ padding: 20 }}
       />
       <nav className="flex flex-col items-stretch gap-4 sm:py-5 text-white font-bold w-[200px]">

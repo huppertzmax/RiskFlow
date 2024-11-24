@@ -42,7 +42,7 @@ export default function ReportPage() {
 
   return (
     <>
-      {report && <ReportSummaryCharts report={report} />}
+
       <TabsElement
         loading={loading}
         vulnerabilitiesList={vulnerabilitiesList}
@@ -54,7 +54,8 @@ export default function ReportPage() {
 
 function TabsElement({
   loading,
-  vulnerabilitiesList
+  vulnerabilitiesList,
+  report
 }: {
   loading: boolean;
   vulnerabilitiesList: Vulnerability[];
@@ -107,6 +108,7 @@ function TabsElement({
           {/* Tabs Content */}
           <Space h="xl" />
           <Tabs.Panel value="1" className={classes.scrollableTab}>
+            {report && <ReportSummaryCharts report={report} />}
             <AccordionComponent vulnerabilities={vulnerabilitiesList} />
           </Tabs.Panel>
           <Tabs.Panel value="2">

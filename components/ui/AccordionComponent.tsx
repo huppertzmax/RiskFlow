@@ -79,8 +79,8 @@ export default function AccordionComponent({
           <ul style={{ marginLeft: "20px", marginBottom: "10px" }}>
             {renderList(
               [
-                `Probability Score: ${risk_scores.probability_score ? Math.round(risk_scores.probability_score * 100) + '%' : '0%'}`,
-                `Impact Score: ${risk_scores.impact_score ? Math.round(risk_scores.impact_score * 100) + '%' : '0%'}`,
+                `Probability Score: ${risk_scores.probability_score ? Math.round(risk_scores.probability_score * 10000) / 100 + '%' : '0%'}`,
+                `Impact Score: ${risk_scores.impact_score ? Math.round(risk_scores.impact_score * 10000) / 100 + '%' : '0%'}`,
                 `Overall Danger: ${risk_scores.overall_danger}`,
               ],
               (score) => <li>{score}</li>

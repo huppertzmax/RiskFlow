@@ -64,7 +64,7 @@ export function TableComponentReport({ vulnerabilities }: TableComponentReportPr
           </Badge>
         </Table.Td>
         <Table.Td>
-          {`${vulnerability.content.risk_scores.probability_score} / ${vulnerability.content.risk_scores.impact_score}`}
+          {`${Math.round((vulnerability.content.risk_scores.probability_score || 0) * 10000) / 100}% / ${Math.round((vulnerability.content.risk_scores.impact_score || 0) * 10000) / 100}%`}
         </Table.Td>
         <Table.Td>
           <Badge color={getBadgeColor(vulnerability.content.risk_scores.overall_danger)}>

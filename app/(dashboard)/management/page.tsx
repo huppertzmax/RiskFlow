@@ -57,7 +57,7 @@ export default function ManagementPage() {
 
         {/* Available Employees Column */}
         <Grid.Col span={5}>
-          <Text weight={600} size='lg' mb='sm'>
+          <Text size='lg' mb='sm'>
             <strong>Available Employees</strong>
           </Text>
           <EmployeeTable employees={employees} />

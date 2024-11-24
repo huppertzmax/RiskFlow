@@ -66,7 +66,7 @@ export default function TextEditorInfoTable({ vulnerabilities, onSendEmail, send
 
       <Space h={50} />
 
-      <Text weight={500} size="lg" style={{ marginBottom: '10px' }}>
+      <Text size="lg" style={{ marginBottom: '10px' }}>
         Vulnerabilities:
       </Text>
       <List>

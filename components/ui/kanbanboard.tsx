@@ -387,7 +387,7 @@ export default function KanbanBoard() {
                       border: "1px solid #e0e0e0",
                     }}
                   >
-                    <Text weight={600}>{task.title}</Text>
+                    <Text >{task.title}</Text>
                     <Text size="sm" color="dimmed">
                       Urgency: {task.urgency}
                     </Text>

@@ -25,7 +25,7 @@ export function EmployeeTable({ employees }: EmployeeTableProps) {
               <Avatar radius="xl" size="md" color="gray">
                 {employee.name[0]}
               </Avatar>
-              <Text weight={500} size="md">
+              <Text size="md">
                 {employee.name}
               </Text>
             </Group>

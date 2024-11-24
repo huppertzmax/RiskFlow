@@ -164,7 +164,7 @@ function AccordionLabel({ label, image, description }: AccordionLabelProps) {
       <Avatar src={image} radius="xl" size="lg" />
       <div>
         <Text>{label}</Text>
-        <Text size="sm" color="dimmed" weight={400}>
+        <Text size="sm" color="dimmed">
           {description}
         </Text>
       </div>

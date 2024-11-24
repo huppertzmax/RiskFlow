@@ -66,7 +66,7 @@ export default function InvestigationPage() {
   const [currentStep, setCurrentStep] = useState({ name: "", value: 0 })
   const [selectedSystems, setSelectedSystems] = useState<number[]>([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [cves, setCves] = useState<typeof EXAMPLE_CVE[]>([EXAMPLE_CVE_2])
+  const [cves, setCves] = useState<typeof EXAMPLE_CVE[]>([])
   const [jsonInput, setJsonInput] = useState("")
   const [dialogOpen, setDialogOpen] = useState(false)
 

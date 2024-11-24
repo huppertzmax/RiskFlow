@@ -12,7 +12,7 @@ import { toast } from "@/components/ui/use-toast";
 const DISABLE = true
 
 export const StatusIcon = ({ isLoadingAnalysis }: { isLoadingAnalysis: () => Promise<boolean> }) => {
-    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
         if (DISABLE) return;

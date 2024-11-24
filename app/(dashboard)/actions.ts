@@ -50,14 +50,42 @@ const exampleResults = {
 // input: 
 export async function runRiskAnalysis(cves: typeof EXAMPLE_CVE[], infectedSystems: typeof selectedSystems) {
   let affectedSystems = new Map<number, object>();
-
+  const start = performance.now();
+  console.log("Started analysis run")
   await findAffectedSystems(cves, affectedSystems);
-  await findInternetAccessibleSystems(affectedSystems, infectedSystems);
-  await findNumberCriticalSystemsInNetworkSeg(affectedSystems);
-  await findSystemInfos(affectedSystems);
+
+  let chunks = splitSystemIdsInChunks(affectedSystems, affectedSystems.size/32);
+
+  const internetAccessPromises = chunks.map(chunk => findInternetAccessibleSystems(chunk, infectedSystems));
+  const criticalSystemPromises = chunks.map(chunk => findNumberCriticalSystemsInNetworkSeg(chunk));
+  const exposedSystemPromises = chunks.map(chunk => findExposedSystemsInSegment(chunk));
+
+
+  await Promise.all([
+  ...internetAccessPromises,
+  ...criticalSystemPromises,
+  ...exposedSystemPromises,
+  findSystemInfos(affectedSystems),
+  ]);
+
+  console.log("Ended analysis run")
+  const end = performance.now();
+  console.log(`Execution Time: ${(end - start)/1000} sec`);
   
-  return affectedSystems;
+  return Array.from(affectedSystems.entries());
 }
+
+function splitSystemIdsInChunks(affectedSystems: Map<number, object>, chunkSize: number) {
+  const chunks: Map<any, any>[] = [];
+  const entries = Array.from(affectedSystems.entries());
+
+  for (let i = 0; i < entries.length; i += chunkSize) {
+    const chunkEntries = entries.slice(i, i + chunkSize); 
+    chunks.push(new Map(chunkEntries)); 
+  }
+
+  return chunks;
+} 
 
 async function findAffectedSystems(cves: any [], affectedSystems: Map<number, object>) {
   for (let i = 0; i < cves.length; i++) {
@@ -166,6 +194,22 @@ async function findSystemInfos(affectedSystems: Map<number, object>) {
     if (affectedSystems.has(sys.id)) {
       affectedSystems.get(sys.id)['risk']['critical_system'] = sys.critical.low == 1;
       affectedSystems.get(sys.id)['risk']['system_type'] = sys.type;
+    }
+  })
+}
+
+async function findExposedSystemsInSegment(affectedSystems: Map<number, object>) {
+  let res = await read(`
+    MATCH (s2:System WHERE s2.id IN $affected_systems)-[:related_ipaddress]->(:IPAddress)-[:in_segment]->(:VirtualNetworkSegment)<-[:in_segment]-(:IPAddress)<-[:related_ipaddress]-(s:System)
+    WHERE NOT (s)-[:related_hostname]->() 
+    RETURN s2.id as id, COUNT(s) as count_exposed;    
+  `,
+  {
+    affected_systems: Array.from(affectedSystems.keys()),
+  });
+  res.forEach(sys => {
+    if (affectedSystems.has(sys.id)) {
+      affectedSystems.get(sys.id)['risk']['network_segment_exposed'] = sys.count_exposed.low;
     }
   })
 }
